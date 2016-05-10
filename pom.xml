@@ -161,6 +161,7 @@
           <excludes>
             <exclude>target/**</exclude>
             <exclude>.clover/**</exclude>
+            <exclude>src/main/resources/banners/**</exclude>
           </excludes>
           <useDefaultExcludes>true</useDefaultExcludes>
           <useDefaultMapping>true</useDefaultMapping>
