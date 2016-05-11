@@ -14,7 +14,7 @@
     </license>
   </licenses>
   <modules>
-    <module>shellbase</module>
+    <module>shellbase-core</module>
     <module>shellbase-example</module>
     <module>shellbase-slack</module>
   </modules>
