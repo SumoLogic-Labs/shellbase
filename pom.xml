@@ -16,6 +16,7 @@
   <modules>
     <module>shellbase</module>
     <module>shellbase-example</module>
+    <module>shellbase-slack</module>
   </modules>
   <scm>
     <url>https://github.com/SumoLogic/shellbase/tags/all-1.0.0</url>
