@@ -135,5 +135,20 @@ class ShellPrompterTest extends CommonWordSpec {
       nonExistingFile()(file.toString).valid should be (false)
       nonExistingFile()(nobodyFile.toString).valid should be (true)
     }
+
+    "always determine character set" in {
+      val alphabet = "abcdefghijklmnopqrstuvwxyz"
+
+      onlyLowerCase(alphabet).valid should be (true)
+      onlyLowerCase("A").valid should be (false)
+
+      onlyLetters(alphabet).valid should be (true)
+      onlyLetters(alphabet.toUpperCase).valid should be (true)
+      onlyLetters("0").valid should be (false)
+
+      onlyNumbers(alphabet).valid should be (false)
+      onlyNumbers(alphabet.toUpperCase()).valid should be (false)
+      onlyNumbers("0123456789").valid should be (true)
+    }
   }
 }
