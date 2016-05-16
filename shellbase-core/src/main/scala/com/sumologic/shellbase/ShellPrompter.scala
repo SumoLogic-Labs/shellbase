@@ -406,7 +406,7 @@ object ShellPromptValidators {
 
       ValidationSuccess
     } catch {
-      case e: Exception => new ValidationFailure("%s, Not a vailid url!".format(result))
+      case e: Exception => new ValidationFailure("%s, Not a valid url!".format(result))
     }
   }
 
