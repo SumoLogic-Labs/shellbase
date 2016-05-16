@@ -18,6 +18,9 @@
  */
 package com.sumologic.shellbase
 
+import java.io.File
+import java.nio.file.Files
+
 import com.sumologic.shellbase.ShellPromptValidators._
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -122,6 +125,15 @@ class ShellPrompterTest extends CommonWordSpec {
       notInList(List("123", "abc", "test"))("astc").valid should be(true)
       notInList(List("", "1234"))("").valid should be(false)
       notInList(List("wert", "1234"))("").valid should be(true)
+    }
+
+    "always determine if file exists" in {
+      val file = Files.createTempFile("exists", "")
+      val nobodyFile = new File("/tmp/doesnt/exist")
+      existingFile()(file.toString).valid should be (true)
+      existingFile()(nobodyFile.toString).valid should be (false)
+      nonExistingFile()(file.toString).valid should be (false)
+      nonExistingFile()(nobodyFile.toString).valid should be (true)
     }
   }
 }
