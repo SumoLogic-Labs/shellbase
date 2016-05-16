@@ -1,4 +1,6 @@
 # shellbase
+
+[![Join the chat at https://gitter.im/SumoLogic/shellbase](https://badges.gitter.im/SumoLogic/shellbase.svg)](https://gitter.im/SumoLogic/shellbase?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Sumo Logic's Scala-based interactive shell framework
 
 ## Install / Download
