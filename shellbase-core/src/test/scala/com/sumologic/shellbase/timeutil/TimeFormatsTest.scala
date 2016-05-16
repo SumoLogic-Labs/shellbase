@@ -80,7 +80,7 @@ class TimeFormatsTest extends CommonWordSpec {
     }
 
     "not fail when time span is large" in {
-      formatAsTersePeriod(10000000000000000L) should be (errorString)
+      formatAsTersePeriod(Long.MaxValue - 1) should be (errorString)
     }
   }
 }
