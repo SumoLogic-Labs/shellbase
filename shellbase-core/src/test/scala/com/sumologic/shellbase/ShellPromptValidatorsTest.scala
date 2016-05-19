@@ -27,17 +27,17 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ShellPromptValidatorsTest extends CommonWordSpec {
-  "ShellPromptValidators.nonEmpty" should {
-    "figure out if string is not empty" in {
-      nonEmpty("abc").valid should be(true)
-      nonEmpty("").valid should be(false)
-    }
-  }
-
   "ShellPromptValidators.empty" should {
     "always figure out string is empty" in {
       ShellPromptValidators.empty("").valid should be(true)
       ShellPromptValidators.empty("abc").valid should be(false)
+    }
+  }
+
+  "ShellPromptValidators.nonEmpty" should {
+    "figure out if string is not empty" in {
+      nonEmpty("abc").valid should be(true)
+      nonEmpty("").valid should be(false)
     }
   }
 
