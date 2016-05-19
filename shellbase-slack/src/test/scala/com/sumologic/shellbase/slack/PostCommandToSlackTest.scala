@@ -53,14 +53,19 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
     "send the message when given correct setup" in {
       val (_, chatClient) = createMockClient
       val channel = createAChannel
-      sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
+      sut.slackMessagingConfigured should be (true)
 
+      sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
       verify(chatClient, times(1)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
+
+      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
+      verify(chatClient, times(2)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
     }
 
     "return an exception as text when thrown" in {
       val (slackClient, _) = createMockClient
       val channel = createAChannel
+      sut.slackMessagingConfigured should be (true)
 
       when(slackClient.chat).thenThrow(new RuntimeException)
 
@@ -70,12 +75,12 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
     "retry and maybe eventually succeed" in {
       val (slackClient, chatClient) = createMockClient
       val channel = createAChannel
+      sut.slackMessagingConfigured should be (true)
 
       when(slackClient.chat).thenThrow(new RuntimeException).thenReturn(chatClient)
 
       sut.postCommandToSlack(List.empty, List.empty) should be (None)
       verify(chatClient, times(1)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
-
     }
   }
 
@@ -101,7 +106,10 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
 
     when(mockState.slackClient).thenReturn(None)
     when(mockState.slackChannel).thenReturn(None)
-    when(mockState.slackOptions).thenReturn(Map.empty[String, String])
+    when(mockState.slackOptions).thenReturn(new SlackState {
+      override def slackClient: Option[SlackClient] = ???
+      override def slackChannel: Option[String] = ???
+    }.slackOptions)
 
     sut = new ShellCommand("", "") with PostCommandToSlack {
       override protected val slackState: SlackState = mockState
