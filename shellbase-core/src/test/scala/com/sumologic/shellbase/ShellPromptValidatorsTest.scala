@@ -154,6 +154,16 @@ class ShellPromptValidatorsTest extends CommonWordSpec {
     }
   }
 
+  "ShellPromptValidators.lengthBetween" should {
+    "always determine length between" in {
+      lengthBetween(0, 1)("").valid should be(true)
+      lengthBetween(0, 1)("a").valid should be(true)
+      lengthBetween(0, 1)("ab").valid should be(false)
+
+      lengthBetween(1, 2)("").valid should be(false)
+    }
+  }
+
   "ShellPromptValidators.onlyLowerCase, onlyLetters, onlyNumbers" should {
     "always determine character set" in {
       val alphabet = "abcdefghijklmnopqrstuvwxyz"
