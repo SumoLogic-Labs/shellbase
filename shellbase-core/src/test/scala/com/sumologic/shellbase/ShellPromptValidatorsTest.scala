@@ -180,4 +180,27 @@ class ShellPromptValidatorsTest extends CommonWordSpec {
       onlyNumbers("0123456789").valid should be(true)
     }
   }
+
+  "ShellPromptValidators.or" should {
+    "correctly pass result down to children validators" in {
+      val result = "test_me"
+      var count = 0
+
+      def testResult(res: String): ValidationResult = {
+        res should be (result)
+        count += 1
+        ValidationFailure("failure")
+      }
+
+      ShellPromptValidators.or(testResult _, testResult _)(result).valid should be (false)
+      count should be (2)
+    }
+
+    "always determine or correctly" in {
+      ShellPromptValidators.or(_ => ValidationSuccess, _ => ValidationSuccess)("").valid should be(true)
+      ShellPromptValidators.or(_ => ValidationFailure("failure"), _ => ValidationSuccess)("").valid should be(true)
+      ShellPromptValidators.or(_ => ValidationSuccess, _ => ValidationFailure("failure"))("").valid should be(true)
+      ShellPromptValidators.or(_ => ValidationFailure("failure"), _ => ValidationFailure("failure"))("").valid should be(false)
+    }
+  }
 }
