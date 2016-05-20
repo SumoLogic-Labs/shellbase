@@ -19,7 +19,7 @@
 package com.sumologic.shellbase.notifications
 
 import com.sumologic.shellbase.cmdline.RichCommandLine._
-import com.sumologic.shellbase.cmdline.{CommandLineArgument, RichCommandLine}
+import com.sumologic.shellbase.cmdline.CommandLineArgument
 import com.sumologic.shellbase.table.ASCIITable
 import com.sumologic.shellbase.{ShellCommand, ShellCommandSet}
 import org.apache.commons.cli.{CommandLine, Options}
