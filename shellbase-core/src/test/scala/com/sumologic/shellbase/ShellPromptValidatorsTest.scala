@@ -143,6 +143,22 @@ class ShellPromptValidatorsTest extends CommonWordSpec {
     }
   }
 
+  "ShellPromptValidators.isURL" should {
+    "accept valid urls" in {
+      isURL()("http://sumologic.com").valid should be (true)
+      isURL()("http://www.sumologic.com").valid should be (true)
+      isURL()("https://sumologic.com").valid should be (true)
+      isURL()("https://www.sumologic.com").valid should be (true)
+      isURL()("http://sumologic.com").valid should be (true)
+      isURL()("https://service.us2.sumologic.com").valid should be (true)
+    }
+
+    "fail invalid urls" in {
+      isURL()("asdf://sumologic.com").valid should be (false)
+      isURL()("adsfj901je").valid should be (false)
+    }
+  }
+
   "ShellPromptValidators.existingFile and ShellPromptValidators.nonExistingFile" should {
     "always determine if file exists" in {
       val file = Files.createTempFile("exists", "")
@@ -201,6 +217,26 @@ class ShellPromptValidatorsTest extends CommonWordSpec {
       ShellPromptValidators.or(_ => ValidationFailure("failure"), _ => ValidationSuccess)("").valid should be(true)
       ShellPromptValidators.or(_ => ValidationSuccess, _ => ValidationFailure("failure"))("").valid should be(true)
       ShellPromptValidators.or(_ => ValidationFailure("failure"), _ => ValidationFailure("failure"))("").valid should be(false)
+    }
+  }
+
+  "ShellPromptValidators.listOf" should {
+    "only pass if all pass" in {
+      listOf(numeric)("1,2,3,4").valid should be (true)
+    }
+
+    "proces each element only once" in {
+      var failureCount = 0
+      def numericProxy(result: String): ValidationResult = {
+        val vResult = numeric(result)
+        if (!vResult.valid) {
+          failureCount += 1
+        }
+        vResult
+      }
+
+      listOf(numericProxy)("1,2,a,b,c").valid should be (false)
+      failureCount should be (3)
     }
   }
 }
