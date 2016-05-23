@@ -21,9 +21,9 @@ package com.sumologic.shellbase.commands
 import com.sumologic.shellbase.ShellCommand
 import org.apache.commons.cli.CommandLine
 
-class ExitCommand extends ShellCommand("exit", "Quit the shell.", List("quit")) {
+class ExitCommand(exitShell: Int => Unit = System.exit) extends ShellCommand("exit", "Quit the shell.", List("quit")) {
   def execute(cmdLine: CommandLine) = {
-    System.exit(0)
+    exitShell(0)
     true
   }
 }

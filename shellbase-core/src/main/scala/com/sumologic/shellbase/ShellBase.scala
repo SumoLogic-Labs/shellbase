@@ -346,7 +346,7 @@ abstract class ShellBase(val name: String) {
 
   rootSet.commands += new ClearCommand
 
-  rootSet.commands += new ExitCommand
+  rootSet.commands += new ExitCommand(exitShell)
 
   rootSet.commands += new SleepCommand
 
