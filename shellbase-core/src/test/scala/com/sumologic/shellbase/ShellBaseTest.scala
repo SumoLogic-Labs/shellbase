@@ -29,6 +29,19 @@ import scala.collection.JavaConverters._
 @RunWith(classOf[JUnitRunner])
 class ShellBaseTest extends CommonWordSpec {
 
+  "ShellBase.main" should {
+    "call init method and bubble exceptions" in {
+      class VerySpecificException extends Exception
+      intercept[VerySpecificException] {
+        new ShellBase("test") {
+          override def init(cmdLine: CommandLine): Boolean = {
+            throw new VerySpecificException
+          }
+        }.main(Array.empty)
+      }
+    }
+  }
+
   "ShellBase.validateCommands" should {
     "throw an exception" when {
       "two commands have identical names" in {
@@ -131,6 +144,18 @@ class ShellBaseTest extends CommonWordSpec {
       assert(commandList(1).executed === true)
       assert(commandList(2).executed === false)
     }
+
+    "run fine even when verbose mode is enabled" in {
+      val commandList = List(new DummyCommand("a"), new DummyFailingCommand("x"), new DummyCommand("c"))
+      val sut = setUpShellBase(commandList)
+      sut.runCommand("a && x && c")
+
+      _verboseMode = true
+
+      assert(commandList(0).executed === true)
+      assert(commandList(1).executed === true)
+      assert(commandList(2).executed === false)
+    }
   }
 
   "ShellBase auto-completion" should {
@@ -207,12 +232,17 @@ class ShellBaseTest extends CommonWordSpec {
     }
   }
 
+  private var _verboseMode = false
   def setUpShellBase(commandList: Seq[ShellCommand]): ShellBase = {
+    _verboseMode = false
+
     val res = new ShellBase("test") {
       /**
         * Return the list of commands.
         */
       override def commands = commandList
+
+      override def verboseMode = _verboseMode
     }
     res.initializeCommands()
     res

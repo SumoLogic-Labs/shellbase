@@ -18,25 +18,21 @@
  */
 package com.sumologic.shellbase
 
-import java.io.{File, FileOutputStream, PrintStream}
+import java.io.File
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
 
-import com.sumologic.shellbase.cmdline.RichCommandLine._
-import com.sumologic.shellbase.cmdline.{CommandLineArgument, CommandLineFlag, CommandLineOption}
+import com.sumologic.shellbase.commands._
 import com.sumologic.shellbase.interrupts.{InterruptKeyMonitor, KillableSingleThread}
 import com.sumologic.shellbase.notifications.{InMemoryShellNotificationManager, NotificationCommandSet, RingingNotification, ShellNotificationManager}
-import com.sumologic.shellbase.timeutil.{TimeFormats, TimedBlock}
+import com.sumologic.shellbase.timeutil.TimeFormats
 import jline.console.ConsoleReader
-import jline.console.completer.{ArgumentCompleter, Completer, NullCompleter, StringsCompleter}
 import jline.console.history.FileHistory
 import org.apache.commons.cli.{CommandLine, GnuParser, HelpFormatter, Options, ParseException, Option => CLIOption}
-import org.apache.commons.io.output.TeeOutputStream
 import org.slf4j.LoggerFactory
 
-import scala.collection.JavaConversions._
 import scala.concurrent.duration.Duration
-import scala.util.{Success, Try}
+import scala.util.Success
 
 /**
   * A shell base that can be used to build shell like applications.
@@ -346,207 +342,25 @@ abstract class ShellBase(val name: String) {
   // Root commands.
   // -----------------------------------------------------------------------------------------------
 
-  val subCommandExtractor = "`([^`]*)`".r // Regex extractor for commands within `-quotes.
+  val subCommandExtractor = ShellBase.SubCommandExtractor
 
-  rootSet.commands += new ShellCommand("clear", "Clear the screen.") {
-    def execute(cmdLine: CommandLine) = {
-      new ConsoleReader().clearScreen
-      true
-    }
-  }
+  rootSet.commands += new ClearCommand
 
-  rootSet.commands += new ShellCommand("exit", "Quit the shell.", List("quit")) {
-    def execute(cmdLine: CommandLine) = {
-      System.exit(0)
-      true
-    }
-  }
+  rootSet.commands += new ExitCommand(exitShell)
 
-  rootSet.commands += new ShellCommand("sleep", "Sleeps the specified time period.", List("zzz")) {
+  rootSet.commands += new SleepCommand
 
-    override def maxNumberOfArguments = 1
+  rootSet.commands += new EchoCommand
 
-    def execute(cmdLine: CommandLine) = {
-      val showSleepIndicator = cmdLine.checkFlag(ShowIndicatorFlag)
+  rootSet.commands += new TeeCommand(runCommand)
 
-      cmdLine.get(PeriodArgument) match {
-        case Some(period) =>
-          val milliseconds = TimeFormats.parseTersePeriod(period).
-            getOrElse(throw new IllegalArgumentException(s"Could not parse $period"))
-          val canonicalPeriod = TimeFormats.formatWithMillis(milliseconds)
-          println(s"Sleeping $canonicalPeriod.")
+  rootSet.commands += new TimeCommand(runCommand)
 
-          val startTime = now
-          var timeRemaining = milliseconds
-          while (timeRemaining > 0) {
-            try {
-              Thread.sleep(1000L min timeRemaining)
-            } catch {
-              case ie: InterruptedException => _logger.debug("Error sleeping", ie)
-            }
-            if (showSleepIndicator) {
-              print(".")
-            }
-            timeRemaining = startTime + milliseconds - now
-          }
-          if (showSleepIndicator) {
-            println()
-          }
-          true
-
-        case None =>
-          println("Missing argument to sleep command!")
-          false
-      }
-    }
-
-    private val PeriodArgument = new CommandLineArgument("period", 0, true)
-    private val ShowIndicatorFlag = new CommandLineFlag("v", "verbose", "whether to print . every second while sleeping")
-
-    override def addOptions(opts: Options) {
-      opts += PeriodArgument
-      opts += ShowIndicatorFlag
-    }
-  }
-
-  rootSet.commands += new ShellCommand("echo", "Write to the screen") {
-
-    override def maxNumberOfArguments = -1 //unlimited
-
-    def execute(cmdLine: CommandLine): Boolean = {
-      if (cmdLine.getArgList.size() > 0) {
-        println(cmdLine.getArgList.mkString(" "))
-      }
-
-      true
-    }
-  }
-
-  rootSet.commands += new ShellCommand("tee", "Forks the stdout of a command so it also prints to a file") {
-
-    private val CommandArgument = new CommandLineArgument("command", 0, true)
-    private val OutputFileOption = new CommandLineOption("o", "outputFile", false, "Filename of output file (defaults to ~/tee.out)")
-    private val AppendFileFlag = new CommandLineFlag("a", "append", "Append the output to the file rather than overwriting it")
-
-    override def maxNumberOfArguments = 1
-
-    override def addOptions(opts: Options) {
-      opts += CommandArgument
-      opts += OutputFileOption
-      opts += AppendFileFlag
-    }
-
-    def execute(cmdLine: CommandLine) = {
-      val outputFile = cmdLine.get(OutputFileOption).getOrElse(System.getProperty("user.home") + s"/tee.out")
-      val appendFile = cmdLine.checkFlag(AppendFileFlag)
-
-      cmdLine.get(CommandArgument) match {
-        case Some(subCommandExtractor(cmd)) =>
-          val fileOut = new FileOutputStream(outputFile, appendFile)
-          val newOut = new PrintStream(new TeeOutputStream(Console.out, fileOut))
-          val status = Console.withOut(newOut) {
-            println(s"Running `$cmd` and outputting to '$outputFile' [append=$appendFile].")
-            runCommand(cmd)
-          }
-          Try(fileOut.close())
-          status
-        case badCmd =>
-          println(s"Usage: tee `<command>`, but found $badCmd.")
-          false
-      }
-    }
-  }
-
-  rootSet.commands += new ShellCommand("time", "Measure the execution time of a command") {
-
-    private val CommandArgument = new CommandLineArgument("command", 0, true)
-
-    override def maxNumberOfArguments = 1
-
-    override def addOptions(opts: Options) {
-      opts += CommandArgument
-    }
-
-    def execute(cmdLine: CommandLine) = {
-      cmdLine.get(CommandArgument) match {
-        case Some(subCommandExtractor(cmd)) =>
-          val start = now
-          val exitStatus = runCommand(cmd)
-          val dt = now - start
-          val dtMessage = s"Execution took $dt ms (${TimeFormats.formatAsTersePeriod(dt)})"
-          _logger.info(s"$dtMessage for `$cmd`")
-          println(s"\n$dtMessage\n")
-          exitStatus
-        case badCmd =>
-          println(s"Usage: time `<command>`, but found $badCmd.")
-          false
-      }
-    }
-  }
-
-  rootSet.commands += new ShellCommand("run_script",
-    "Run the script from the specified file.", List("script")) {
-
-    override def maxNumberOfArguments = -1
-
-    def execute(cmdLine: CommandLine): Boolean = {
-
-      val continue = cmdLine.hasOption("continue")
-
-      var scriptFile: File = null
-      val args: Array[String] = cmdLine.getArgs
-
-      if (args.length < 1) {
-        printf("Please specify a script to run!")
-        return false
-      }
-
-      val scriptFileName = args(0)
-
-      for (pattern <- List("scripts/%s.dsh", "scripts/%s", "%s")) {
-        val tmp = new File(pattern.format(scriptFileName))
-        if (tmp.exists) {
-          scriptFile = tmp
-        }
-      }
-
-      if (scriptFile == null) {
-        print(s"Could not find the script $scriptFileName! Please make sure the script file exists locally.")
-        return false
-      }
-
-      // Execute the script, line by line.
-      TimedBlock(s"Executing script $scriptFileName", println(_)) {
-        val scriptLines = new ScriptRenderer(scriptFile, args.tail).
-          getLines.filterNot(parseLine(_).isEmpty)
-        require(scriptLines.nonEmpty, s"No non-comment lines found in $scriptFileName")
-        for (line <- scriptLines) {
-          val success = runCommand(line)
-          if (!continue && !success) {
-            return false
-          }
-        }
-      }
-
-      true
-    }
-
-    override def argCompleter: Completer = {
-      if (scriptDir.exists) {
-        var scriptNames = scriptDir.listFiles.filter(_.isFile).map(_.getName)
-        if (scriptExtension != null) {
-          scriptNames = scriptNames.filter(_.endsWith(scriptExtension))
-        }
-        new ArgumentCompleter(List(new StringsCompleter(scriptNames: _*), new NullCompleter))
-      } else {
-        new NullCompleter
-      }
-    }
-
-    override def addOptions(opts: Options) = {
-      opts.addOption("c", "continue", false, "Continue even if there was a failure in execution.")
-    }
-  }
+  rootSet.commands += new RunScriptCommand(scriptDir, scriptExtension, runCommand, parseLine)
 
   rootSet.commands += new NotificationCommandSet(notificationManager) // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
+}
+
+object ShellBase {
+  val SubCommandExtractor = "`([^`]*)`".r // Regex extractor for commands within `-quotes.
 }
