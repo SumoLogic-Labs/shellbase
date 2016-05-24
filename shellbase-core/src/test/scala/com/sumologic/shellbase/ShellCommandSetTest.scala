@@ -32,6 +32,8 @@ class ShellCommandSetTest extends CommonWordSpec {
       run(sut, "test help") should be(true)
       run(sut, "test ?") should be(true)
       run(sut, "test ? one") should be(true)
+      run(sut, "test ? two") should be(false)
+      run(sut, "test") should be(true)
     }
 
     "execute commands in the set" in {
@@ -88,6 +90,32 @@ class ShellCommandSetTest extends CommonWordSpec {
         run(sut, "test one") should be(false)
         one.commandLines.size should be(1)
       }
+
+      "the command fails preExecute" in {
+        val sut = new ShellCommandSet("test", "set help text")
+
+        val throwExceptionShellHook: ShellCommandSet.ExecuteHook = (_, _) => throw new Exception("test")
+        sut.preExecuteHooks += throwExceptionShellHook
+
+        val one = new TestCommand("one")
+        one.returnResult = true
+        sut.commands += one
+        run(sut, "test one") should be(false)
+        one.commandLines.size should be(0)
+      }
+
+      "the command fails postExecute" in {
+        val sut = new ShellCommandSet("test", "set help text")
+
+        val throwExceptionShellHook: ShellCommandSet.ExecuteHook = (_, _) => throw new Exception("test")
+        sut.postExecuteHooks += throwExceptionShellHook
+
+        val one = new TestCommand("one")
+        one.returnResult = true
+        sut.commands += one
+        run(sut, "test one") should be(false)
+        one.commandLines.size should be(1)
+      }
     }
 
     "not run a command" when {
@@ -107,6 +135,13 @@ class ShellCommandSetTest extends CommonWordSpec {
         val result = run(sut, "test one")
         result should be(false)
         one.commandLines.size should be(0)
+      }
+    }
+
+    "not allow running old execute line" in {
+      val sut = new ShellCommandSet("blah", "")
+      intercept[IllegalAccessException] {
+        sut.execute(null)
       }
     }
   }
