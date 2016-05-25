@@ -37,7 +37,7 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
   // password with a ! in it.
   in.setExpandEvents(false)
 
-  private val asciiCR = 13.toChar
+  private[shellbase] val asciiCR = 13.toChar
 
   /**
     * Asks user to confirm something.
