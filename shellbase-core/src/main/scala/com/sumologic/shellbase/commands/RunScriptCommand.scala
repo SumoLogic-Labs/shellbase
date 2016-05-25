@@ -41,7 +41,7 @@ class RunScriptCommand(scriptDir: File, scriptExtension: String, runCommand: Str
     val args: Array[String] = cmdLine.getArgs
 
     if (args.length < 1) {
-      printf("Please specify a script to run!")
+      println("Please specify a script to run!")
       return false
     }
 
@@ -55,7 +55,7 @@ class RunScriptCommand(scriptDir: File, scriptExtension: String, runCommand: Str
     }
 
     if (scriptFile == null) {
-      print(s"Could not find the script $scriptFileName! Please make sure the script file exists locally.")
+      println(s"Could not find the script $scriptFileName! Please make sure the script file exists locally.")
       return false
     }
 
