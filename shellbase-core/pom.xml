@@ -59,11 +59,10 @@
       <version>1.7</version>
     </dependency>
 
-    <!-- Experimental automatic resource management in the Scala incubator. -->
     <dependency>
-      <groupId>com.jsuereth</groupId>
-      <artifactId>scala-arm_${scala.version.major}</artifactId>
-      <version>1.4</version>
+      <groupId>org.scala-lang</groupId>
+      <artifactId>scala-library</artifactId>
+      <version>${scala.version}</version>
     </dependency>
 
     <!-- Test Dependencies. -->
