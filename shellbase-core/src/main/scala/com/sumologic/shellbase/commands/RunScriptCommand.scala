@@ -21,14 +21,14 @@ package com.sumologic.shellbase.commands
 import java.io.File
 
 import com.sumologic.shellbase.timeutil.TimedBlock
-import com.sumologic.shellbase.{ScriptRenderer, ShellCommand}
+import com.sumologic.shellbase.{ScriptRenderer, ShellBase, ShellCommand}
 import jline.console.completer.{ArgumentCompleter, Completer, NullCompleter, StringsCompleter}
 import org.apache.commons.cli.{CommandLine, Options}
 
 import scala.collection.JavaConversions._
 
 class RunScriptCommand(scriptDir: File, scriptExtension: String, runCommand: String => Boolean,
-                       parseLine: String => List[String]) extends ShellCommand("run_script",
+                       parseLine: String => List[String] = ShellBase.parseLine) extends ShellCommand("run_script",
   "Run the script from the specified file.", List("script")) {
 
   override def maxNumberOfArguments = -1
