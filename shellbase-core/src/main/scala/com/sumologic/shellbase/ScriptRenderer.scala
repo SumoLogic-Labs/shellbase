@@ -20,7 +20,7 @@ package com.sumologic.shellbase
 
 import java.io._
 
-import resource._
+import org.apache.commons.io.IOUtils
 
 import scala.io.Source
 
@@ -29,8 +29,13 @@ class ScriptRenderer(file: File, args: Array[String]) {
   def getLines: Seq[String] = {
     val output = File.createTempFile(file.getName, "script")
     output.deleteOnExit()
-    managed(new FileReader(file)).and(managed(new FileWriter(output))).acquireAndGet { case (reader, writer) =>
+    val reader = new FileReader(file)
+    val writer = new FileWriter(output)
+    try {
       VelocityRenderer.render(argsToMap, reader, writer)
+    } finally {
+      IOUtils.closeQuietly(reader)
+      IOUtils.closeQuietly(writer)
     }
     Source.fromFile(output).getLines().toSeq
   }

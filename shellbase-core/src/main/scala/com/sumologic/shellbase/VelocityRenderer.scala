@@ -21,9 +21,9 @@ package com.sumologic.shellbase
 import java.io._
 import java.util.Properties
 
+import org.apache.commons.io.IOUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.{Velocity, VelocityEngine}
-import resource._
 
 import scala.collection.JavaConversions._
 
@@ -52,9 +52,13 @@ object VelocityRenderer {
   def render(templateVars: Iterable[(String, AnyRef)], templatePath: String, outputPath: String): Unit = {
     val templateReader = new InputStreamReader(getClass.getClassLoader.getResourceAsStream(templatePath))
     val outputWriter = new OutputStreamWriter(new FileOutputStream(outputPath))
-    render(templateVars, templateReader, outputWriter)
-    templateReader.close()
-    outputWriter.close()
+
+    try {
+      render(templateVars, templateReader, outputWriter)
+    } finally {
+      IOUtils.closeQuietly(templateReader)
+      IOUtils.closeQuietly(outputWriter)
+    }
   }
 
   def createScriptFromTemplate(scriptResource: String,
@@ -73,8 +77,11 @@ object VelocityRenderer {
     val modifiableVariables = new java.util.HashMap[AnyRef, AnyRef]()
     modifiableVariables ++= variables
 
-    for (writer <- managed(new FileWriter(tempFile))) {
+    val writer = new FileWriter(tempFile)
+    try {
       template.merge(new VelocityContext(modifiableVariables), writer)
+    } finally {
+      IOUtils.closeQuietly(writer)
     }
 
     tempFile
