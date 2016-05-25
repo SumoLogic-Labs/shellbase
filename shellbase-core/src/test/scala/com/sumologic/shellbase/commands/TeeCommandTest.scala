@@ -46,6 +46,11 @@ class TeeCommandTest extends CommonWordSpec {
       calls should be(2)
     }
 
+    "degrade nicely with malformatted input" in {
+      new TeeCommand(_ => true).executeLine(List.empty) should be(false)
+      new TeeCommand(_ => true).executeLine(List("test")) should be(false)
+    }
+
     "write output to file, and support append mode" in {
       def printMessage(str: String): Boolean = {
         println(str)
