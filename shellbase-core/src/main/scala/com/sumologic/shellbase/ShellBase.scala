@@ -297,33 +297,7 @@ abstract class ShellBase(val name: String) {
 
   private def now = System.currentTimeMillis()
 
-  protected def parseLine(line: String): List[String] = {
-
-    if (line.trim.startsWith("#") || line.trim.length < 1) {
-      return List[String]()
-    }
-
-    var parsedLine = List[String]()
-    val regex = Pattern.compile("[^\\s\"'`]+|\"([^\"]*)\"|'([^']*)'|`([^`]*)`")
-    val regexMatcher = regex.matcher(line)
-    while (regexMatcher.find()) {
-      if (regexMatcher.group(1) != null) {
-        // Add double-quoted string without the quotes
-        parsedLine :+= regexMatcher.group(1)
-      } else if (regexMatcher.group(2) != null) {
-        // Add single-quoted string without the quotes
-        parsedLine :+= regexMatcher.group(2)
-      } else if (regexMatcher.group(3) != null) {
-        // Add `-quoted string with the quotes
-        parsedLine :+= "`" + regexMatcher.group(3) + "`"
-      } else {
-        // Add unquoted word
-        parsedLine :+= regexMatcher.group()
-      }
-    }
-
-    parsedLine
-  }
+  protected def parseLine(line: String): List[String] = ShellBase.parseLine(line)
 
   // -----------------------------------------------------------------------------------------------
   // Little helpers.
@@ -363,4 +337,31 @@ abstract class ShellBase(val name: String) {
 
 object ShellBase {
   val SubCommandExtractor = "`([^`]*)`".r // Regex extractor for commands within `-quotes.
+
+  def parseLine(line: String): List[String] = {
+    if (line.trim.startsWith("#") || line.trim.length < 1) {
+      return List[String]()
+    }
+
+    var parsedLine = List[String]()
+    val regex = Pattern.compile("[^\\s\"'`]+|\"([^\"]*)\"|'([^']*)'|`([^`]*)`")
+    val regexMatcher = regex.matcher(line)
+    while (regexMatcher.find()) {
+      if (regexMatcher.group(1) != null) {
+        // Add double-quoted string without the quotes
+        parsedLine :+= regexMatcher.group(1)
+      } else if (regexMatcher.group(2) != null) {
+        // Add single-quoted string without the quotes
+        parsedLine :+= regexMatcher.group(2)
+      } else if (regexMatcher.group(3) != null) {
+        // Add `-quoted string with the quotes
+        parsedLine :+= "`" + regexMatcher.group(3) + "`"
+      } else {
+        // Add unquoted word
+        parsedLine :+= regexMatcher.group()
+      }
+    }
+
+    parsedLine
+  }
 }
