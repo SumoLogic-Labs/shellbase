@@ -19,6 +19,8 @@
 package com.sumologic.shellbase
 
 import java.io.InputStream
+import java.text.ParseException
+import java.util.Date
 
 import jline.console.ConsoleReader
 import org.junit.runner.RunWith
@@ -96,16 +98,103 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
     }
   }
 
+  "ShellPrompter.confirmWithWarning" should {
+    "return true for yes answers" in {
+      feedCharacters("y")
+      sut.confirmWithWarning("blah") should be(true)
+
+      feedCharacters("Y")
+      sut.confirmWithWarning("blah") should be(true)
+    }
+
+    "return false for no answers" in {
+      feedCharacters("n")
+      sut.confirmWithWarning("blah") should be(false)
+
+      feedCharacters("N")
+      sut.confirmWithWarning("blah") should be(false)
+    }
+
+    "handle bogus input until valid character" in {
+      feedCharacters("fasdfkljn")
+      sut.confirmWithWarning("blah") should be(false)
+    }
+  }
+
+  "ShellPrompter.askForTime" should {
+    "produce date for format" in {
+      when(mockReader.readLine(anyString)).thenReturn("15 Jul 22:01")
+
+      val expectedDate = new Date()
+      expectedDate.setHours(22)
+      expectedDate.setMinutes(1)
+      expectedDate.setMonth(6)
+      expectedDate.setDate(15)
+      expectedDate.setSeconds(0)
+      expectedDate.setTime((expectedDate.getTime / 1000) * 1000)
+
+      sutWithMock.askForTime("someQuestion") should be (expectedDate)
+    }
+
+    "allow custom formats + don't change year unless needed" in {
+      when(mockReader.readLine(anyString)).thenReturn("15 Jul 2013 22:01")
+
+      val expectedDate = new Date()
+      expectedDate.setHours(22)
+      expectedDate.setMinutes(1)
+      expectedDate.setMonth(6)
+      expectedDate.setDate(15)
+      expectedDate.setSeconds(0)
+      expectedDate.setYear(2013 - 1900)
+      expectedDate.setTime((expectedDate.getTime / 1000) * 1000)
+
+      sutWithMock.askForTime("someQuestion", "d MMM y HH:mm") should be (expectedDate)
+    }
+
+    "bubble exception for incorrect format" in {
+      when(mockReader.readLine(anyString())).thenReturn("kajsdfl;kj1")
+      intercept[ParseException] {
+        sutWithMock.askForTime("my question")
+      }
+    }
+  }
+
+  "ShellPrompter.askPasswordWithConfirmation" should {
+    "require a minimum length" in {
+      when(mockReader.readLine(anyString, anyChar())).thenReturn("a", "b", "cc", "cc")
+      sutWithMock.askPasswordWithConfirmation(minLength = 2) should be ("cc")
+    }
+
+    "return the password if they eventually match (after retries)" in {
+      when(mockReader.readLine(anyString, anyChar())).thenReturn("a", "b", "c", "d", "e", "e")
+      sutWithMock.askPasswordWithConfirmation() should be ("e")
+    }
+
+    "bail out after x failed tries" in {
+      when(mockReader.readLine(anyString, anyChar())).thenReturn("a", "b", "c", "d", "e", "e")
+      sutWithMock.askPasswordWithConfirmation(maxAttempts = 2) should be (null)
+
+      verify(mockReader, times(4)).readLine(anyString, anyChar)
+    }
+  }
+
   "ShellPrompter.askQuestion" should {
     "validate questions" in {
-      val input = mock[ConsoleReader]
       val question = "Do you like testing?"
       val answer = "answer"
 
-      when(input.readLine(contains(question), isNull(classOf[Character]))).thenReturn(answer)
+      when(mockReader.readLine(contains(question), isNull(classOf[Character]))).thenReturn(answer)
 
-      val prompter = new ShellPrompter(input)
-      prompter.askQuestion(question, List(ShellPromptValidators.nonEmpty)) should equal(answer)
+      sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty)) should equal(answer)
+    }
+
+    "support returning a default" in {
+      val question = "Do you like testing?"
+      val default = "hi!"
+
+      when(mockReader.readLine(contains(question), isNull(classOf[Character]))).thenReturn("")
+
+      sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty), default = default) should equal(default)
     }
   }
 
@@ -117,10 +206,15 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
     queue.enqueue(string: _*)
   }
 
+  private var queue: mutable.Queue[Char] = _
   private var reader: ConsoleReader = _
   private var sut: ShellPrompter = _
-  //  private var stream: InputStream = _
-  private var queue: mutable.Queue[Char] = _
+
+  // NOTE(chris, 2016-05-26): Mocks do not work on final methods.  In those cases, we feed characters directly. Use
+  // this when mocked method is not final.  (No, I'm not proud of having to do this.)
+  private var mockReader: ConsoleReader = _
+  private var sutWithMock: ShellPrompter = _
+
 
   override protected def beforeEach(): Unit = {
     queue = new mutable.Queue[Char]()
@@ -129,6 +223,9 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
     }
     reader = new ConsoleReader(stream, System.out)
     sut = new ShellPrompter(in = reader)
+
+    mockReader = mock[ConsoleReader]
+    sutWithMock = new ShellPrompter(in = mockReader)
   }
 
 }
