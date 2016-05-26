@@ -78,7 +78,7 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
 
   def confirmWithWarning(question: String): Boolean = {
     println(ShellBanner.Warning)
-    printf("%s [Y/N]")
+    printf("%s [Y/N]", question)
     try {
       val char = in.readCharacter("yn".toCharArray: _*)
       println(char.toChar)
