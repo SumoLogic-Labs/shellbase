@@ -145,17 +145,17 @@ class ShellPromptValidatorsTest extends CommonWordSpec {
 
   "ShellPromptValidators.isURL" should {
     "accept valid urls" in {
-      isURL()("http://sumologic.com").valid should be (true)
-      isURL()("http://www.sumologic.com").valid should be (true)
-      isURL()("https://sumologic.com").valid should be (true)
-      isURL()("https://www.sumologic.com").valid should be (true)
-      isURL()("http://sumologic.com").valid should be (true)
-      isURL()("https://service.us2.sumologic.com").valid should be (true)
+      isURL()("http://sumologic.com").valid should be(true)
+      isURL()("http://www.sumologic.com").valid should be(true)
+      isURL()("https://sumologic.com").valid should be(true)
+      isURL()("https://www.sumologic.com").valid should be(true)
+      isURL()("http://sumologic.com").valid should be(true)
+      isURL()("https://service.us2.sumologic.com").valid should be(true)
     }
 
     "fail invalid urls" in {
-      isURL()("asdf://sumologic.com").valid should be (false)
-      isURL()("adsfj901je").valid should be (false)
+      isURL()("asdf://sumologic.com").valid should be(false)
+      isURL()("adsfj901je").valid should be(false)
     }
   }
 
@@ -203,13 +203,13 @@ class ShellPromptValidatorsTest extends CommonWordSpec {
       var count = 0
 
       def testResult(res: String): ValidationResult = {
-        res should be (result)
+        res should be(result)
         count += 1
         ValidationFailure("failure")
       }
 
-      ShellPromptValidators.or(testResult _, testResult _)(result).valid should be (false)
-      count should be (2)
+      ShellPromptValidators.or(testResult _, testResult _)(result).valid should be(false)
+      count should be(2)
     }
 
     "always determine or correctly" in {
@@ -222,10 +222,10 @@ class ShellPromptValidatorsTest extends CommonWordSpec {
 
   "ShellPromptValidators.listOf" should {
     "only pass if all pass" in {
-      listOf(numeric)("1,2,3,4").valid should be (true)
+      listOf(numeric)("1,2,3,4").valid should be(true)
     }
 
-    "proces each element only once" in {
+    "process each element only once" in {
       var failureCount = 0
       def numericProxy(result: String): ValidationResult = {
         val vResult = numeric(result)
@@ -235,8 +235,30 @@ class ShellPromptValidatorsTest extends CommonWordSpec {
         vResult
       }
 
-      listOf(numericProxy)("1,2,a,b,c").valid should be (false)
-      failureCount should be (3)
+      listOf(numericProxy)("1,2,a,b,c").valid should be(false)
+      failureCount should be(3)
+    }
+  }
+
+  "ShellPromptValidators.chooseNCommaSeparated" should {
+    "throw exception for invalid options" in {
+      intercept[IllegalArgumentException] {
+        ShellPromptValidators.chooseNCommaSeparated(Seq("1", "2", "3"), 4)("1,2")
+      }
+    }
+
+    "validate as success for valid result " in {
+      ShellPromptValidators.chooseNCommaSeparated(Seq("1", "2", "3"), 2)("1,2").valid shouldBe true
+    }
+
+    "validate as failure for invalid result" in {
+      ShellPromptValidators.chooseNCommaSeparated(Seq("1", "2", "3"), 2)("1").valid shouldBe false
+      ShellPromptValidators.chooseNCommaSeparated(Seq("1", "2", "3"), 2)("1,4").valid shouldBe false
+      ShellPromptValidators.chooseNCommaSeparated(Seq("1", "2", "3"), 2)("1,4,5").valid shouldBe false
+    }
+
+    "accept spaces around commas" in {
+      ShellPromptValidators.chooseNCommaSeparated(Seq("1", "2", "3"), 2)("1, 2").valid shouldBe true
     }
   }
 }

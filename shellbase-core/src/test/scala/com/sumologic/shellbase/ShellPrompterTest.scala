@@ -22,6 +22,8 @@ import java.io.InputStream
 
 import jline.console.ConsoleReader
 import org.junit.runner.RunWith
+import org.mockito.Matchers._
+import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
@@ -82,15 +84,28 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
   "ShellPrompter.readChar" should {
     "accept any character if not specified" in {
       feedCharacters("abc")
-      sut.readChar("blah", Seq.empty) should be ('a'.toInt)
-      sut.readChar("blah", Seq.empty) should be ('b'.toInt)
-      sut.readChar("blah", Seq.empty) should be ('c'.toInt)
+      sut.readChar("blah", Seq.empty) should be('a'.toInt)
+      sut.readChar("blah", Seq.empty) should be('b'.toInt)
+      sut.readChar("blah", Seq.empty) should be('c'.toInt)
     }
 
     "accept a subset of characters if specified" in {
       feedCharacters("abc")
-      sut.readChar("blah", Seq('a', 'c')) should be ('a'.toInt)
-      sut.readChar("blah", Seq('a', 'c')) should be ('c'.toInt)
+      sut.readChar("blah", Seq('a', 'c')) should be('a'.toInt)
+      sut.readChar("blah", Seq('a', 'c')) should be('c'.toInt)
+    }
+  }
+
+  "ShellPrompter.askQuestion" should {
+    "validate questions" in {
+      val input = mock[ConsoleReader]
+      val question = "Do you like testing?"
+      val answer = "answer"
+
+      when(input.readLine(contains(question), isNull(classOf[Character]))).thenReturn(answer)
+
+      val prompter = new ShellPrompter(input)
+      prompter.askQuestion(question, List(ShellPromptValidators.nonEmpty)) should equal(answer)
     }
   }
 
