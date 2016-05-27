@@ -133,7 +133,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
       expectedDate.setSeconds(0)
       expectedDate.setTime((expectedDate.getTime / 1000) * 1000)
 
-      sutWithMock.askForTime("someQuestion") should be (expectedDate)
+      sutWithMock.askForTime("someQuestion") should be(expectedDate)
     }
 
     "allow custom formats + don't change year unless needed" in {
@@ -148,7 +148,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
       expectedDate.setYear(2013 - 1900)
       expectedDate.setTime((expectedDate.getTime / 1000) * 1000)
 
-      sutWithMock.askForTime("someQuestion", "d MMM y HH:mm") should be (expectedDate)
+      sutWithMock.askForTime("someQuestion", "d MMM y HH:mm") should be(expectedDate)
     }
 
     "bubble exception for incorrect format" in {
@@ -161,18 +161,18 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
 
   "ShellPrompter.askPasswordWithConfirmation" should {
     "require a minimum length" in {
-      when(mockReader.readLine(anyString, anyChar())).thenReturn("a", "b", "cc", "cc")
-      sutWithMock.askPasswordWithConfirmation(minLength = 2) should be ("cc")
+      answerQuestionWith("a", "b", "cc", "cc")
+      sutWithMock.askPasswordWithConfirmation(minLength = 2) should be("cc")
     }
 
     "return the password if they eventually match (after retries)" in {
-      when(mockReader.readLine(anyString, anyChar())).thenReturn("a", "b", "c", "d", "e", "e")
-      sutWithMock.askPasswordWithConfirmation() should be ("e")
+      answerQuestionWith("a", "b", "c", "d", "e", "e")
+      sutWithMock.askPasswordWithConfirmation() should be("e")
     }
 
     "bail out after x failed tries" in {
-      when(mockReader.readLine(anyString, anyChar())).thenReturn("a", "b", "c", "d", "e", "e")
-      sutWithMock.askPasswordWithConfirmation(maxAttempts = 2) should be (null)
+      answerQuestionWith("a", "b", "c", "d", "e", "e")
+      sutWithMock.askPasswordWithConfirmation(maxAttempts = 2) should be(null)
 
       verify(mockReader, times(4)).readLine(anyString, anyChar)
     }
@@ -183,7 +183,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
       val question = "Do you like testing?"
       val answer = "answer"
 
-      when(mockReader.readLine(contains(question), isNull(classOf[Character]))).thenReturn(answer)
+      answerQuestionWith(answer)
 
       sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty)) should equal(answer)
     }
@@ -192,10 +192,105 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
       val question = "Do you like testing?"
       val default = "hi!"
 
-      when(mockReader.readLine(contains(question), isNull(classOf[Character]))).thenReturn("")
+      answerQuestionWith("")
 
       sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty), default = default) should equal(default)
     }
+
+    "throw exception if all validation fails" in {
+      val question = "Do you like testing?"
+
+      answerQuestionWith("")
+      intercept[IllegalArgumentException] {
+        sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty))
+      }
+    }
+
+    "throw exception even if only one validator fails" in {
+      answerQuestionWith("asdf")
+
+      intercept[IllegalArgumentException] {
+        sutWithMock.askQuestion("", List(ShellPromptValidators.nonEmpty, _ => ValidationFailure("")))
+      }
+    }
+  }
+
+  "ShellPrompter.pickFromOptions" should {
+    "return the input when the answer gives valid number" in {
+      answerQuestionWith("1")
+      sutWithMock.pickFromOptions("", Seq("a", "b", "c")) should be("a")
+
+      answerQuestionWith("2")
+      sutWithMock.pickFromOptions("", Seq("a", "b", "c")) should be("b")
+
+      answerQuestionWith("3")
+      sutWithMock.pickFromOptions("", Seq("a", "b", "c")) should be("c")
+    }
+
+    "return default if answer doesn't answer" in {
+      answerQuestionWith("")
+      sutWithMock.pickFromOptions("", Seq("a", "b", "c"), default = "b") should be("b")
+    }
+
+    "return null if user says 0 and allowNoSelection is true" in {
+      answerQuestionWith("0")
+      sutWithMock.pickFromOptions("", Seq("a", "b", "c"), allowNoSelection = true) should be(null)
+
+      intercept[IllegalArgumentException] {
+        sutWithMock.pickFromOptions("", Seq("a", "b", "c"), allowNoSelection = false)
+      }
+    }
+
+    "retry a few times until valid answer" in {
+      answerQuestionWith("0", "0", "3")
+      sutWithMock.pickFromOptions("", Seq("a", "b", "c")) should be("c")
+    }
+  }
+
+  "ShellPrompter.pickMultipleFromVerboseOptions" should {
+    "maintain the order the user entered them" in {
+      answerQuestionWith("3,1")
+      sutWithMock.pickMultipleFromVerboseOptions("", Seq("a", "b", "c"), Seq("aa", "bb", "cc")) should be(Seq("cc", "aa"))
+    }
+
+    "return answer if eventually passes" in {
+      answerQuestionWith("0", "0", "1,3")
+      sutWithMock.pickMultipleFromVerboseOptions("", Seq("a", "b", "c"), Seq("aa", "bb", "cc")) should be(Seq("aa", "cc"))
+    }
+
+    "return empty if answer contains 0 at all and allowNoSelection is true" in {
+      answerQuestionWith("0")
+      sutWithMock.pickMultipleFromVerboseOptions("", Seq("a", "b", "c"), Seq("aa", "bb", "cc"), allowNoSelection = true) should be(Seq.empty)
+
+      intercept[Exception] {
+        sutWithMock.pickMultipleFromVerboseOptions("", Seq("a", "b", "c"), Seq("aa", "bb", "cc"), allowNoSelection = false)
+      }
+    }
+  }
+
+  "ShellPrompter.pickMultipleFromOptions" should {
+    "maintain the order the user entered them" in {
+      answerQuestionWith("3,1")
+      sutWithMock.pickMultipleFromOptions("", Seq("a", "b", "c")) should be(Seq("c", "a"))
+    }
+
+    "return answer if eventually passes" in {
+      answerQuestionWith("0", "0", "1,3")
+      sutWithMock.pickMultipleFromOptions("", Seq("a", "b", "c")) should be(Seq("a", "c"))
+    }
+
+    "return empty if answer contains 0 at all and allowNoSelection is true" in {
+      answerQuestionWith("0")
+      sutWithMock.pickMultipleFromOptions("", Seq("a", "b", "c"), allowNoSelection = true) should be(Seq.empty)
+
+      intercept[Exception] {
+        sutWithMock.pickMultipleFromOptions("", Seq("a", "b", "c"), allowNoSelection = false)
+      }
+    }
+  }
+
+  private def answerQuestionWith(str1: String, str: String*): Unit = {
+    when(mockReader.readLine(anyString, anyChar)).thenReturn(str1, str: _*)
   }
 
   private def feedCharacters(string: String): Unit = {

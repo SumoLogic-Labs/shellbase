@@ -27,6 +27,22 @@ import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ShellPromptValidatorsTest extends CommonWordSpec {
+  "ShellPromptValidators.matchesRegex" should {
+    "return true if matches regex" in {
+      ShellPromptValidators.matchesRegex("^a$")("a").valid should be(true)
+    }
+
+    "return false if fails to match regex" in {
+      ShellPromptValidators.matchesRegex("^a$")("b").valid should be(false)
+      ShellPromptValidators.matchesRegex("^a$")("A").valid should be(false)
+    }
+
+    "upper case things automatically" in {
+      ShellPromptValidators.matchesRegex("^A$", toUpper = true)("a").valid should be(true)
+      ShellPromptValidators.matchesRegex("^A$", toUpper = true)("A").valid should be(true)
+    }
+  }
+
   "ShellPromptValidators.empty" should {
     "always figure out string is empty" in {
       ShellPromptValidators.empty("").valid should be(true)
