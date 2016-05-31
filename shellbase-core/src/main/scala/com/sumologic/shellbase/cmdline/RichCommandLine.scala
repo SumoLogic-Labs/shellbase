@@ -38,12 +38,14 @@ object RichCommandLine {
 }
 
 class RichScalaOption[T](optn: Option[T]) {
+  private[cmdline] def exit(exitCode: Int): Unit = System.exit(exitCode)
+
   def getOrExitWithMessage(message: String, exitCode: Int = 1): T = {
     optn match {
       case Some(value) => value
       case None => {
         println(message)
-        System.exit(exitCode)
+        exit(exitCode)
         null.asInstanceOf[T]
       }
     }
