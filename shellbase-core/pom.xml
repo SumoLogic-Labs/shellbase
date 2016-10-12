@@ -3,12 +3,12 @@
   <artifactId>shellbase-core</artifactId>
   <name>shellbase-core</name>
   <packaging>jar</packaging>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
 
   <parent>
     <artifactId>all</artifactId>
     <groupId>com.sumologic.shellbase</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
 

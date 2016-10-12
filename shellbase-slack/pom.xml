@@ -4,12 +4,12 @@
   <artifactId>shellbase-slack</artifactId>
   <name>shellbase-slack</name>
   <packaging>jar</packaging>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.2-SNAPSHOT</version>
 
   <parent>
     <artifactId>all</artifactId>
     <groupId>com.sumologic.shellbase</groupId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
 
@@ -27,7 +27,7 @@
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-core</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.2-SNAPSHOT</version>
     </dependency>
 
     <dependency>
