@@ -136,33 +136,43 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
     })
   }
 
+  protected def printHelp(args: List[String]): Boolean = {
+    args match {
+      case Nil =>
+        printf("Available commands: %n")
+        for (cmd <- commands.filterNot(_.deprecated).sortBy(_.name)) {
+          printf("  %-15s %s%n", cmd.name, cmd.helpText)
+        }
+        true
+      case command :: rest =>
+        findCommand(command) match {
+          case Some(shellCommand) if rest.isEmpty =>
+            shellCommand.help
+            true
+          case Some(shellCommand) =>
+            shellCommand match {
+              case shellCommandSet: ShellCommandSet => shellCommandSet.printHelp(rest)
+              case _  =>
+                printf("Command '%s' doesn't have subcommands", command)
+                false
+            }
+          case None =>
+            printf("Command '%s' unknown.", command)
+            false
+        }
+    }
+  }
+
   // -----------------------------------------------------------------------------------------------
   // Commands available with all command sets.
   // -----------------------------------------------------------------------------------------------
 
   commands += new ShellCommand("help", "Print online help.", List("?")) {
 
-    override def maxNumberOfArguments = 1
+    override def maxNumberOfArguments = Int.MaxValue
 
     def execute(cmdLine: CommandLine) = {
-
-      if (cmdLine.getArgList.size < 1 || cmdLine.getArgs()(0).trim.isEmpty) {
-        printf("Available commands: %n")
-        for (cmd <- commands.filterNot(_.deprecated).sortBy(_.name)) {
-          printf("  %-15s %s%n", cmd.name, cmd.helpText)
-        }
-        true
-      } else {
-        val command = cmdLine.getArgs()(0)
-        findCommand(command) match {
-          case Some(shellCommand) =>
-            shellCommand.help
-            true
-          case None =>
-            printf("Command '%s' unknown.", command)
-            false
-        }
-      }
+      printHelp(cmdLine.getArgs.toList.map(_.trim).filter(_.nonEmpty))
     }
   }
 }
