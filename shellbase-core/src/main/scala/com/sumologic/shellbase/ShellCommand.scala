@@ -154,7 +154,12 @@ abstract class ShellCommand(val name: String,
 
     val txt = s"$name ${arguments.mkString(" ")}"
 
-    new HelpFormatter().printHelp(txt, options)
+    new HelpFormatter().printHelp(HelpFormatter.DEFAULT_WIDTH, txt, helpText, options,
+      null, // footer
+      true) // print an automatically generated usage statement, instead of:
+      //  usage: sleep period
+      // It prints:
+      //  usage: sleep period [-v]
   }
 
   final def completer = {

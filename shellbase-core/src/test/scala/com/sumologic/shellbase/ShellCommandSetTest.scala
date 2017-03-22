@@ -36,6 +36,16 @@ class ShellCommandSetTest extends CommonWordSpec {
       run(sut, "test") should be(true)
     }
 
+    "support multi level help" in {
+      val sut = new ShellCommandSet("test", "set help text")
+      val nested = new ShellCommandSet("nested", "some help")
+      sut.commands += new TestCommand("one")
+      sut.commands += nested
+      nested.commands += new TestCommand("two")
+      run(sut, "help test one") should be(true)
+      run(sut, "help test nested two") should be(true)
+    }
+
     "execute commands in the set" in {
       val sut = new ShellCommandSet("test", "set help text")
       val one = new TestCommand("one")

@@ -136,25 +136,20 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
     })
   }
 
-  // -----------------------------------------------------------------------------------------------
-  // Commands available with all command sets.
-  // -----------------------------------------------------------------------------------------------
-
-  commands += new ShellCommand("help", "Print online help.", List("?")) {
-
-    override def maxNumberOfArguments = 1
-
-    def execute(cmdLine: CommandLine) = {
-
-      if (cmdLine.getArgList.size < 1 || cmdLine.getArgs()(0).trim.isEmpty) {
+  protected def printHelp(args: List[String]): Boolean = {
+    args match {
+      case Nil =>
         printf("Available commands: %n")
         for (cmd <- commands.filterNot(_.deprecated).sortBy(_.name)) {
           printf("  %-15s %s%n", cmd.name, cmd.helpText)
         }
         true
-      } else {
-        val command = cmdLine.getArgs()(0)
+      case command :: rest =>
         findCommand(command) match {
+          case Some(shellCommandSet: ShellCommandSet) => shellCommandSet.printHelp(rest)
+          case Some(shellCommand) if rest.nonEmpty =>
+            printf("Command '%s' doesn't have subcommands", command)
+            false
           case Some(shellCommand) =>
             shellCommand.help
             true
@@ -162,7 +157,19 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
             printf("Command '%s' unknown.", command)
             false
         }
-      }
+    }
+  }
+
+  // -----------------------------------------------------------------------------------------------
+  // Commands available with all command sets.
+  // -----------------------------------------------------------------------------------------------
+
+  commands += new ShellCommand("help", "Print online help.", List("?")) {
+
+    override def maxNumberOfArguments = Int.MaxValue
+
+    def execute(cmdLine: CommandLine) = {
+      printHelp(cmdLine.getArgs.toList.map(_.trim).filter(_.nonEmpty))
     }
   }
 }
