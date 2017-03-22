@@ -77,7 +77,7 @@ class TeeCommandTest extends CommonWordSpec {
   }
 
   private def getTempFilePath(): Path = {
-    Files.createTempFile("teecommand", Random.nextString(5))
+    Files.createTempFile("teecommand", ".tmp")
   }
 
   private def readTempFile(path: Path): List[String] = {
