@@ -44,6 +44,8 @@ class ShellCommandSetTest extends CommonWordSpec {
       nested.commands += new TestCommand("two")
       run(sut, "help test one") should be(true)
       run(sut, "help test nested two") should be(true)
+      run(sut, "help -a test nested two") should be(true)
+      run(sut, "help --all test") should be(true)
     }
 
     "execute commands in the set" in {
