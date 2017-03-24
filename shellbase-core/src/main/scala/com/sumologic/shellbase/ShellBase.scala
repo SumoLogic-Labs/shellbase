@@ -91,7 +91,7 @@ abstract class ShellBase(val name: String) {
   /**
     * Hide in help built-in commands.
     */
-  def hideInHelpBuiltInCommands(name: String): Boolean = false
+  def hideBuiltInCommandsFromHelp(commandName: String): Boolean = false
 
   /**
     * Manages notifications
@@ -324,36 +324,36 @@ abstract class ShellBase(val name: String) {
   val subCommandExtractor = ShellBase.SubCommandExtractor
 
   rootSet.commands += new ClearCommand {
-    override val hiddenInHelp = hideInHelpBuiltInCommands(name)
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
   rootSet.commands += new ExitCommand(exitShell)  {
-    override val hiddenInHelp = hideInHelpBuiltInCommands(name)
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
   rootSet.commands += new SleepCommand  {
-    override val hiddenInHelp = hideInHelpBuiltInCommands(name)
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
   rootSet.commands += new EchoCommand  {
-    override val hiddenInHelp = hideInHelpBuiltInCommands(name)
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
   rootSet.commands += new TeeCommand(runCommand)  {
-    override val hiddenInHelp = hideInHelpBuiltInCommands(name)
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
   rootSet.commands += new TimeCommand(runCommand)  {
-    override val hiddenInHelp = hideInHelpBuiltInCommands(name)
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
   rootSet.commands += new RunScriptCommand(scriptDir, scriptExtension, runCommand, parseLine)  {
-    override val hiddenInHelp = hideInHelpBuiltInCommands(name)
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
   rootSet.commands += new NotificationCommandSet(notificationManager)  {
     // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
-    override val hiddenInHelp = hideInHelpBuiltInCommands(name)
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 }
 

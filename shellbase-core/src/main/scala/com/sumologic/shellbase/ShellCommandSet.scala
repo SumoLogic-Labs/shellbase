@@ -152,7 +152,7 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
           printf("  %-15s %s%n", cmd.name, cmd.helpText)
         })
         if (somethingWasHidden) {
-          printf("Some commands was hidden. Use [-%s] flag to show all.%n", ShowAllCommands.shortName)
+          println(s"Some commands was hidden. Use [-${ShowAllCommands.shortName}] flag to show all.")
         }
         true
       case command :: rest =>
