@@ -89,6 +89,11 @@ abstract class ShellBase(val name: String) {
   def historyPath: File = new File("%s/.%s_history".format(System.getProperty("user.home"), name))
 
   /**
+    * Hide in help built-in commands.
+    */
+  def hideBuiltInCommandsFromHelp(commandName: String): Boolean = false
+
+  /**
     * Manages notifications
     */
   lazy val notificationManager: ShellNotificationManager = new InMemoryShellNotificationManager(Seq(new RingingNotification))
@@ -318,21 +323,38 @@ abstract class ShellBase(val name: String) {
 
   val subCommandExtractor = ShellBase.SubCommandExtractor
 
-  rootSet.commands += new ClearCommand
+  rootSet.commands += new ClearCommand {
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
+  }
 
-  rootSet.commands += new ExitCommand(exitShell)
+  rootSet.commands += new ExitCommand(exitShell)  {
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
+  }
 
-  rootSet.commands += new SleepCommand
+  rootSet.commands += new SleepCommand  {
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
+  }
 
-  rootSet.commands += new EchoCommand
+  rootSet.commands += new EchoCommand  {
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
+  }
 
-  rootSet.commands += new TeeCommand(runCommand)
+  rootSet.commands += new TeeCommand(runCommand)  {
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
+  }
 
-  rootSet.commands += new TimeCommand(runCommand)
+  rootSet.commands += new TimeCommand(runCommand)  {
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
+  }
 
-  rootSet.commands += new RunScriptCommand(scriptDir, scriptExtension, runCommand, parseLine)
+  rootSet.commands += new RunScriptCommand(scriptDir, scriptExtension, runCommand, parseLine)  {
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
+  }
 
-  rootSet.commands += new NotificationCommandSet(notificationManager) // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
+  rootSet.commands += new NotificationCommandSet(notificationManager)  {
+    // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
+    override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
+  }
 }
 
 object ShellBase {

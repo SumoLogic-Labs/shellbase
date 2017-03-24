@@ -18,8 +18,10 @@
  */
 package com.sumologic.shellbase
 
+import com.sumologic.shellbase.cmdline.CommandLineFlag
 import jline.console.completer.AggregateCompleter
-import org.apache.commons.cli.CommandLine
+import org.apache.commons.cli.{CommandLine, Options}
+import com.sumologic.shellbase.cmdline.RichCommandLine._
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
@@ -136,17 +138,26 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
     })
   }
 
-  protected def printHelp(args: List[String]): Boolean = {
+  protected def printHelp(args: List[String], showAllCommands: Boolean): Boolean = {
     args match {
       case Nil =>
         printf("Available commands: %n")
-        for (cmd <- commands.filterNot(_.deprecated).sortBy(_.name)) {
+        var filteredCommands = commands.filterNot(_.deprecated)
+        var somethingWasHidden = false
+        if (!showAllCommands) {
+          somethingWasHidden = filteredCommands.exists(_.hiddenInHelp)
+          filteredCommands = filteredCommands.filterNot(_.hiddenInHelp)
+        }
+        filteredCommands.sortBy(_.name).foreach(cmd => {
           printf("  %-15s %s%n", cmd.name, cmd.helpText)
+        })
+        if (somethingWasHidden) {
+          println(s"Some commands was hidden. Use [-${ShowAllCommands.shortName}] flag to show all.")
         }
         true
       case command :: rest =>
         findCommand(command) match {
-          case Some(shellCommandSet: ShellCommandSet) => shellCommandSet.printHelp(rest)
+          case Some(shellCommandSet: ShellCommandSet) => shellCommandSet.printHelp(rest, showAllCommands)
           case Some(shellCommand) if rest.nonEmpty =>
             printf("Command '%s' doesn't have subcommands", command)
             false
@@ -164,12 +175,20 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
   // Commands available with all command sets.
   // -----------------------------------------------------------------------------------------------
 
+  private val ShowAllCommands = new CommandLineFlag("a", "all", "Show all commands, including hidden")
+
   commands += new ShellCommand("help", "Print online help.", List("?")) {
 
     override def maxNumberOfArguments = Int.MaxValue
 
     def execute(cmdLine: CommandLine) = {
-      printHelp(cmdLine.getArgs.toList.map(_.trim).filter(_.nonEmpty))
+      val showAllCommands = cmdLine.checkFlag(ShowAllCommands)
+      printHelp(cmdLine.getArgs.toList.map(_.trim).filter(_.nonEmpty), showAllCommands)
+    }
+
+    override def addOptions(opts: Options): Unit = {
+      super.addOptions(opts)
+      opts += ShowAllCommands
     }
   }
 }

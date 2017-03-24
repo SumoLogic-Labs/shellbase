@@ -32,7 +32,8 @@ import scala.concurrent.Future
 abstract class ShellCommand(val name: String,
                             val helpText: String,
                             val aliases: List[String] = List[String](),
-                            val deprecated: Boolean = false) {
+                            val deprecated: Boolean = false,
+                            val hiddenInHelp: Boolean = false) {
 
   protected val _logger = LoggerFactory.getLogger(getClass)
   protected lazy val prompter = new ShellPrompter()
