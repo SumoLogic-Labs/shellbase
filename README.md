@@ -14,13 +14,13 @@ These are the components we provide:
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-core</artifactId>
-      <version>1.0.1</version>
+      <version>1.1.0</version>
     </dependency>
 
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-slack</artifactId>
-      <version>1.0.1</version>
+      <version>1.1.0</version>
     </dependency>
 ```
 
@@ -33,8 +33,35 @@ These are the components we provide:
 * **echo** - Writes output to the screen (STDOUT)
 * **tee** - Lets you fork stdout to a file
 * **time** - Time how long a command took
-* **run_script** / **script** - Execute the specified script.  Will attempt to be smart about locating 
+* **run_script** / **script** - Execute the specified script.  Will attempt to be smart about locating
 
 ## Example Shell
 
 We've put together a very simple [example shell](./shellbase-example) that can generate random numbers.  
+
+## [Dev] How to release new version
+
+1. Make sure you have all credentials.
+  * Can login as `sumoapi` https://oss.sonatype.org/index.html
+  * Have nexus credentials ~/.m2/settings.xml
+
+  ```
+  <server>
+    <username>sumoapi</username>
+    <password>****</password>
+    <id>sonatype-nexus-staging</id>
+  </server>
+  ```
+  * Signing key:
+
+  ```
+    gpg --import ~/Desktop/api.private.key
+    gpg-agent --daemon
+    touch a
+    gpg --use-agent --sign a
+
+  ```
+2. `mvn release:prepare`
+3. `mvn release:perform` (alternative `git checkout HEAD~1 && mvn deploy`)
+4. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic and release your repo.
+5. Push your commits as PR (`git push origin master:new-branch`)

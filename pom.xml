@@ -4,7 +4,7 @@
   <groupId>com.sumologic.shellbase</groupId>
   <artifactId>all</artifactId>
   <name>all</name>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.1.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <licenses>
     <license>
@@ -21,6 +21,7 @@
   <scm>
     <url>https://github.com/SumoLogic/shellbase/tags/all-1.0.0</url>
     <connection>https://github.com/SumoLogic/shellbase/tags/all-1.0.0</connection>
+    <developerConnection>scm:git:https://github.com/SumoLogic/shellbase.git</developerConnection>
   </scm>
 
   <properties>
@@ -206,6 +207,13 @@
           <serverId>sonatype-nexus-staging</serverId>
           <nexusUrl>https://oss.sonatype.org</nexusUrl>
           <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <configuration>
+          <pushChanges>false</pushChanges>
         </configuration>
       </plugin>
     </plugins>
