@@ -48,7 +48,7 @@ We've put together a very simple [example shell](./shellbase-example) that can g
   ```
   <server>
     <username>sumoapi</username>
-    <password>****/password>
+    <password>****</password>
     <id>sonatype-nexus-staging</id>
   </server>
   ```
