@@ -27,7 +27,8 @@ import scala.io.Source
 class ScriptRenderer(file: File, args: Array[String]) {
 
   def getLines: Seq[String] = {
-    val output = File.createTempFile(file.getName, "script")
+    val prefix = file.getName + ("_" * Math.max(0, 3 - file.getName.length))
+    val output = File.createTempFile(prefix, "script")
     output.deleteOnExit()
     val reader = new FileReader(file)
     val writer = new FileWriter(output)
