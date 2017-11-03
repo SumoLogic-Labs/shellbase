@@ -90,7 +90,7 @@ abstract class ShellBase(val name: String) {
     Option(new File(personalScriptDir, s".init.$scriptExtension")).filter(f => f.exists && f.canRead)
 
   /**
-    * File extension for scripts.
+    * File extension for scripts (without leading dot).
     */
   def scriptExtension: String = name
 

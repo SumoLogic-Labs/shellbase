@@ -78,7 +78,8 @@ class RunScriptCommand(scriptDirs: List[File], scriptExtension: String, runComma
   }
 
   override def argCompleter: Completer = {
-    val scriptNames = findScripts(name => scriptExtension == null || name.endsWith(scriptExtension)).map(_.getName)
+    val suffix = s".$scriptExtension"
+    val scriptNames = findScripts(name => scriptExtension == null || name.endsWith(suffix)).map(_.getName)
     new ArgumentCompleter(List(new StringsCompleter(scriptNames: _*), new NullCompleter))
   }
 
