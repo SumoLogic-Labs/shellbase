@@ -86,7 +86,8 @@ abstract class ShellBase(val name: String) {
   /**
     * Start-up script
     */
-  def initScript: File = new File(personalScriptDir, ".init." + scriptExtension)
+  def initScriptOpt: Option[File] =
+    Option(new File(personalScriptDir, s".init.$scriptExtension")).filter(f => f.exists && f.canRead)
 
   /**
     * File extension for scripts.
@@ -101,7 +102,7 @@ abstract class ShellBase(val name: String) {
   /**
     * Name of the history file.
     */
-  //NOTE(Konstantin, 2017-27-02): This should probably be moved to $personalDir
+  // NOTE(konstantin, 2017-27-02): This should probably be moved to $personalDir
   def historyPath: File = new File("%s/.%s_history".format(System.getProperty("user.home"), name))
 
   /**
@@ -184,7 +185,7 @@ abstract class ShellBase(val name: String) {
     }
 
     def runInitScript(): Unit = {
-      if (initScript.exists && initScript.canRead) {
+      for (initScript <- initScriptOpt) {
         runScriptCommand.executeLine(List(initScript.getAbsolutePath))
       }
     }
