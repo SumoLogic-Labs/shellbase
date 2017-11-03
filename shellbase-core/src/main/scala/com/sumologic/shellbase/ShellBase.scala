@@ -24,7 +24,7 @@ import java.util.regex.Pattern
 
 import com.sumologic.shellbase.commands._
 import com.sumologic.shellbase.interrupts.{InterruptKeyMonitor, KillableSingleThread}
-import com.sumologic.shellbase.notifications.{InMemoryShellNotificationManager, NotificationCommandSet, RingingNotification, ShellNotificationManager}
+import com.sumologic.shellbase.notifications._
 import com.sumologic.shellbase.timeutil.TimeFormats
 import jline.console.ConsoleReader
 import jline.console.history.FileHistory
@@ -96,7 +96,9 @@ abstract class ShellBase(val name: String) {
   /**
     * Manages notifications
     */
-  lazy val notificationManager: ShellNotificationManager = new InMemoryShellNotificationManager(Seq(new RingingNotification))
+  lazy val notificationManager: ShellNotificationManager = new InMemoryShellNotificationManager(
+    name, Seq(new RingingNotification, new PopupNotification)
+  )
 
   /**
     * Pre, post command hooks

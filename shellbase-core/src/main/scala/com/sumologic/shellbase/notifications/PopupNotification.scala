@@ -18,8 +18,20 @@
  */
 package com.sumologic.shellbase.notifications
 
-trait ShellNotification {
-  def name: String
+import java.io.File
 
-  def notify(title: String, message: String): Unit
+class PopupNotification extends ShellNotification {
+  override val name: String = "popup"
+
+  override def notify(title: String, message: String): Unit = {
+    val osascript = new File("/usr/bin/osascript")
+    if (osascript.exists && osascript.isFile && osascript.canExecute) {
+      val pb = new ProcessBuilder(
+        osascript.getAbsolutePath,
+        "-e",
+        s"""display notification "$message" with title "$title""""
+      )
+      pb.start()
+    }
+  }
 }

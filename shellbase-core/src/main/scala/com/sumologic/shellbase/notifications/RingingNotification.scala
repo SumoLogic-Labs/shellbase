@@ -21,7 +21,7 @@ package com.sumologic.shellbase.notifications
 class RingingNotification extends ShellNotification {
   override def name: String = "bell"
 
-  override def notify(message: String): Unit = {
+  override def notify(title: String, message: String): Unit = {
     (0 to 10).foreach {
       i => {
         System.out.print("\u0007")
