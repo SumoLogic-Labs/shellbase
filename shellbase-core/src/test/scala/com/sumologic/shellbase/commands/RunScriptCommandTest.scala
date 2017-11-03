@@ -28,7 +28,7 @@ import org.scalatest.junit.JUnitRunner
 class RunScriptCommandTest extends CommonWordSpec {
   "RunScriptCommand" should {
     "handle non-existent script files" in {
-      val sut = new RunScriptCommand(scriptsDir, null, runCommand = _ => throw new Exception("Should not get here"))
+      val sut = new RunScriptCommand(List(scriptsDir), null, runCommand = _ => throw new Exception("Should not get here"))
       sut.executeLine(List.empty) should be (false)
 
       sut.executeLine(List("does_not_exist")) should be (false)
@@ -50,7 +50,7 @@ class RunScriptCommandTest extends CommonWordSpec {
           tmpFile.deleteOnExit()
           Files.write(tmpFile.toPath, "echo hello".getBytes())
 
-          val sut = new RunScriptCommand(scriptsDir, "", runCommand = _ => true)
+          val sut = new RunScriptCommand(List(scriptsDir), "", runCommand = _ => true)
           sut.executeLine(List(tmpFile.getAbsolutePath)) should be(true)
 
         case None => fail("Can't create unique tmp file")
@@ -62,18 +62,18 @@ class RunScriptCommandTest extends CommonWordSpec {
     // skip writing tests for auto-complete.
 
     "accept either scripts or the parent of scripts dir" ignore {
-      val sut1 = new RunScriptCommand(scriptsDir, null, runCommand = inputShouldBeSimple(true))
+      val sut1 = new RunScriptCommand(List(scriptsDir), null, runCommand = inputShouldBeSimple(true))
       sut1.executeLine(List("simple")) should be (true)
 
-      val sut2 = new RunScriptCommand(scriptsDir.getParentFile, null, runCommand = inputShouldBeSimple(true))
+      val sut2 = new RunScriptCommand(List(scriptsDir.getParentFile), null, runCommand = inputShouldBeSimple(true))
       sut2.executeLine(List("simple")) should be (true)
     }
 
     "return the status of runCommand" ignore {
-      val sut1 = new RunScriptCommand(scriptsDir, null, runCommand = inputShouldBeSimple(false))
+      val sut1 = new RunScriptCommand(List(scriptsDir), null, runCommand = inputShouldBeSimple(false))
       sut1.executeLine(List("simple")) should be (false)
 
-      val sut2 = new RunScriptCommand(scriptsDir, null, runCommand = inputShouldBeSimple(true))
+      val sut2 = new RunScriptCommand(List(scriptsDir), null, runCommand = inputShouldBeSimple(true))
       sut2.executeLine(List("simple")) should be (true)
     }
   }

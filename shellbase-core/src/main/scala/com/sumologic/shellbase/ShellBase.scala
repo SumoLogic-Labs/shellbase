@@ -69,9 +69,19 @@ abstract class ShellBase(val name: String) {
   def banner: String = ""
 
   /**
+    * User personal directory with shell-related stuff.
+    */
+  def personalDir: File = new File(new File(System.getProperty("user.home")), "." + name)
+
+  /**
     * Where to look for scripts.
     */
   def scriptDir: File = new File("scripts/")
+
+  /**
+   * Where to look for personal scripts.
+   */
+  def personalScriptDir: File = new File(personalDir, "scripts/")
 
   /**
     * File extension for scripts.
@@ -86,6 +96,7 @@ abstract class ShellBase(val name: String) {
   /**
     * Name of the history file.
     */
+  //NOTE(Konstantin, 2017-27-02): This should probably be moved to $personalDir
   def historyPath: File = new File("%s/.%s_history".format(System.getProperty("user.home"), name))
 
   /**
@@ -347,7 +358,10 @@ abstract class ShellBase(val name: String) {
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
-  rootSet.commands += new RunScriptCommand(scriptDir, scriptExtension, runCommand, parseLine)  {
+  rootSet.commands += new RunScriptCommand(
+    List(scriptDir, personalScriptDir, new File(System.getProperty("user.dir"))),
+    scriptExtension, runCommand, parseLine
+  ) {
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
