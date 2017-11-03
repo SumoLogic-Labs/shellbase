@@ -79,9 +79,14 @@ abstract class ShellBase(val name: String) {
   def scriptDir: File = new File("scripts/")
 
   /**
-   * Where to look for personal scripts.
-   */
+    * Where to look for personal scripts.
+    */
   def personalScriptDir: File = new File(personalDir, "scripts/")
+
+  /**
+    * Start-up script
+    */
+  def initScript: File = new File(personalScriptDir, ".init." + scriptExtension)
 
   /**
     * File extension for scripts.
@@ -178,6 +183,12 @@ abstract class ShellBase(val name: String) {
         return 1
     }
 
+    def runInitScript(): Unit = {
+      if (initScript.exists && initScript.canRead) {
+        runScriptCommand.executeLine(List(initScript.getAbsolutePath))
+      }
+    }
+
     if (init(cmdLine)) {
       initializeCommands()
 
@@ -198,6 +209,7 @@ abstract class ShellBase(val name: String) {
         }
 
         if (interactiveAfterScript) {
+          runInitScript()
           interactiveMainLoop()
         }
       } else {
@@ -205,6 +217,7 @@ abstract class ShellBase(val name: String) {
 
         println(banner)
 
+        runInitScript()
         interactiveMainLoop()
       }
 
@@ -358,12 +371,13 @@ abstract class ShellBase(val name: String) {
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
-  rootSet.commands += new RunScriptCommand(
+  private val runScriptCommand = new RunScriptCommand(
     List(scriptDir, personalScriptDir, new File(System.getProperty("user.dir"))),
     scriptExtension, runCommand, parseLine
   ) {
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
+  rootSet.commands += runScriptCommand
 
   rootSet.commands += new NotificationCommandSet(notificationManager)  {
     // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
