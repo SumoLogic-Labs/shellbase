@@ -30,24 +30,24 @@ class InMemoryShellNotificationManagerTest extends CommonWordSpec with BeforeAnd
 
   "InMemoryShellNotificationManager" should {
     "provide notification names" in {
-      val sut = new InMemoryShellNotificationManager(Seq(notification1, notification2))
+      val sut = new InMemoryShellNotificationManager("", Seq(notification1, notification2))
       sut.notifierNames should be(Seq(firstName, secondName))
     }
 
     "know if a notification is enabled by default" in {
-      val sut = new InMemoryShellNotificationManager(Seq(notification1, notification2), enabledByDefault = false)
+      val sut = new InMemoryShellNotificationManager("", Seq(notification1, notification2), enabledByDefault = false)
       sut.notificationEnabled(firstName) should be(false)
       sut.notificationEnabled(secondName) should be(false)
       sut.notificationEnabled("madeUp") should be(false)
 
-      val sut2 = new InMemoryShellNotificationManager(Seq(notification1, notification2), enabledByDefault = true)
+      val sut2 = new InMemoryShellNotificationManager("", Seq(notification1, notification2), enabledByDefault = true)
       sut2.notificationEnabled(firstName) should be(true)
       sut2.notificationEnabled(secondName) should be(true)
       sut2.notificationEnabled("madeUp") should be(true)
     }
 
     "support enabling and disabling notifications" in {
-      val sut = new InMemoryShellNotificationManager(Seq(notification1, notification2))
+      val sut = new InMemoryShellNotificationManager("", Seq(notification1, notification2))
       sut.notificationEnabled(firstName) should be(false)
       sut.notificationEnabled(secondName) should be(false)
 
@@ -70,26 +70,26 @@ class InMemoryShellNotificationManagerTest extends CommonWordSpec with BeforeAnd
 
     "only notify enabled notifications" in {
       val notificationString = "test"
-      val sut = new InMemoryShellNotificationManager(Seq(notification1, notification2))
+      val sut = new InMemoryShellNotificationManager("", Seq(notification1, notification2))
 
       sut.notify(notificationString)
-      verify(notification1, times(0)).notify(notificationString)
-      verify(notification2, times(0)).notify(notificationString)
+      verify(notification1, times(0)).notify("", notificationString)
+      verify(notification2, times(0)).notify("", notificationString)
 
       sut.enable(firstName)
       sut.notify(notificationString)
-      verify(notification1, times(1)).notify(notificationString)
-      verify(notification2, times(0)).notify(notificationString)
+      verify(notification1, times(1)).notify("", notificationString)
+      verify(notification2, times(0)).notify("", notificationString)
 
       sut.enable(secondName)
       sut.notify(notificationString)
-      verify(notification1, times(2)).notify(notificationString)
-      verify(notification2, times(1)).notify(notificationString)
+      verify(notification1, times(2)).notify("", notificationString)
+      verify(notification2, times(1)).notify("", notificationString)
 
       sut.disable(firstName)
       sut.notify(notificationString)
-      verify(notification1, times(2)).notify(notificationString)
-      verify(notification2, times(2)).notify(notificationString)
+      verify(notification1, times(2)).notify("", notificationString)
+      verify(notification2, times(2)).notify("", notificationString)
 
     }
   }

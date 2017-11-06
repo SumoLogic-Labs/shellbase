@@ -26,19 +26,19 @@ import org.scalatest.junit.JUnitRunner
 class NotificationCommandSetTest extends CommonWordSpec {
   "Notification Command Set" should {
     "list notifications" in {
-      val manager = new InMemoryShellNotificationManager(Seq(createNotification("test")))
+      val manager = new InMemoryShellNotificationManager("", Seq(createNotification("test")))
       val sut = new NotificationCommandSet(manager)
       sut.executeLine(List("list"))
     }
 
     "list notifications (even if empty)" in {
-      val manager = new InMemoryShellNotificationManager(Seq.empty)
+      val manager = new InMemoryShellNotificationManager("", Seq.empty)
       val sut = new NotificationCommandSet(manager)
       sut.executeLine(List("list"))
     }
 
     "let you toggle on/off all notifications at once" in {
-      val manager = new InMemoryShellNotificationManager(Seq(createNotification("1"), createNotification("2"), createNotification("3")))
+      val manager = new InMemoryShellNotificationManager("", Seq(createNotification("1"), createNotification("2"), createNotification("3")))
       val sut = new NotificationCommandSet(manager)
 
       sut.executeLine(List("enable"))
@@ -63,7 +63,7 @@ class NotificationCommandSetTest extends CommonWordSpec {
     }
 
     "let you toggle on/off notifications individually/in a group" in {
-      val manager = new InMemoryShellNotificationManager(Seq(createNotification("1"), createNotification("2"), createNotification("3")))
+      val manager = new InMemoryShellNotificationManager("", Seq(createNotification("1"), createNotification("2"), createNotification("3")))
       val sut = new NotificationCommandSet(manager)
 
       sut.executeLine(List("enable", "1"))
@@ -90,7 +90,7 @@ class NotificationCommandSetTest extends CommonWordSpec {
   }
 
   private def createNotification(n: String) = new ShellNotification {
-    override def notify(message: String): Unit = ???
+    override def notify(title: String, message: String): Unit = ???
 
     override def name: String = n
   }

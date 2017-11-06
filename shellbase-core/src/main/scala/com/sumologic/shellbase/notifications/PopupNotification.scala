@@ -18,8 +18,27 @@
  */
 package com.sumologic.shellbase.notifications
 
-trait ShellNotification {
-  def name: String
+import java.io.File
 
-  def notify(title: String, message: String): Unit
+class PopupNotification extends ShellNotification {
+  override val name: String = "popup"
+
+  override def notify(title: String, message: String): Unit = {
+    macNotify(title, message)
+    // add other OS support as needed
+  }
+
+  private def macNotify(title: String, message: String): Unit = {
+    val osascript = new File("/usr/bin/osascript")
+    if (osascript.exists && osascript.isFile && osascript.canExecute) {
+      val escapedMessage = message.replace("\"", "\\\"")
+      val escapedTitle = title.replace("\"", "\\\"")
+      val pb = new ProcessBuilder(
+        osascript.getAbsolutePath,
+        "-e",
+        s"""display notification "$escapedMessage" with title "$escapedTitle""""
+      )
+      pb.start()
+    }
+  }
 }

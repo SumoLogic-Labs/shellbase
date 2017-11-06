@@ -18,7 +18,7 @@
  */
 package com.sumologic.shellbase.notifications
 
-class InMemoryShellNotificationManager(notifications: Seq[ShellNotification], enabledByDefault: Boolean = false)
+class InMemoryShellNotificationManager(title: String, notifications: Seq[ShellNotification], enabledByDefault: Boolean = false)
   extends ShellNotificationManager {
 
   private[this] var enabledMap = Map[String, Boolean]()
@@ -32,7 +32,7 @@ class InMemoryShellNotificationManager(notifications: Seq[ShellNotification], en
   }
 
   override def notify(message: String): Unit = {
-    notifications.filter(n => notificationEnabled(n.name)).foreach(_.notify(message))
+    notifications.filter(n => notificationEnabled(n.name)).foreach(_.notify(title, message))
   }
 
   override def enable(notifier: String): Unit = {
