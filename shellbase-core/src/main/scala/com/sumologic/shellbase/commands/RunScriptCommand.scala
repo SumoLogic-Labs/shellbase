@@ -18,7 +18,7 @@
  */
 package com.sumologic.shellbase.commands
 
-import java.io.File
+import java.io.{File, FilenameFilter}
 
 import com.sumologic.shellbase.timeutil.TimedBlock
 import com.sumologic.shellbase.{ScriptRenderer, ShellBase, ShellCommand}
@@ -27,17 +27,16 @@ import org.apache.commons.cli.{CommandLine, Options}
 
 import scala.collection.JavaConversions._
 
-class RunScriptCommand(scriptDir: File, scriptExtension: String, runCommand: String => Boolean,
+class RunScriptCommand(scriptDirs: List[File], scriptExtension: String, runCommand: String => Boolean,
                        parseLine: String => List[String] = ShellBase.parseLine) extends ShellCommand("run_script",
   "Run the script from the specified file.", List("script")) {
 
-  override def maxNumberOfArguments = -1
+  override def maxNumberOfArguments: Int = -1
 
   def execute(cmdLine: CommandLine): Boolean = {
 
     val continue = cmdLine.hasOption("continue")
 
-    var scriptFile: File = null
     val args: Array[String] = cmdLine.getArgs
 
     if (args.length < 1) {
@@ -47,47 +46,53 @@ class RunScriptCommand(scriptDir: File, scriptExtension: String, runCommand: Str
 
     val scriptFileName = args(0)
 
-    for (pattern <- List("scripts/%s.dsh", "scripts/%s", "%s")) {
-      val tmp = new File(pattern.format(scriptFileName))
-      if (tmp.exists) {
-        scriptFile = tmp
-      }
-    }
+    val scriptFiles: List[File] = findScripts {
+      List(
+        s"$scriptFileName.$scriptExtension",
+        s"$scriptFileName.dsh", // NOTE(konstantin, 2017-04-02): "dsh" kept for compatibility reasons
+        s"$scriptFileName"
+      ).contains
+    } ++ List(new File(scriptFileName)).filter(f => f.exists && f.isFile && f.canRead) // respect absolute paths too
 
-    if (scriptFile == null) {
-      println(s"Could not find the script $scriptFileName! Please make sure the script file exists locally.")
-      return false
-    }
-
-    // Execute the script, line by line.
-    TimedBlock(s"Executing script $scriptFileName", println(_)) {
-      val scriptLines = new ScriptRenderer(scriptFile, args.tail).
-        getLines.filterNot(parseLine(_).isEmpty)
-      require(scriptLines.nonEmpty, s"No non-comment lines found in $scriptFileName")
-      for (line <- scriptLines) {
-        val success = runCommand(line)
-        if (!continue && !success) {
-          return false
+    scriptFiles match {
+      case scriptFile :: _ =>
+        // Execute the script, line by line.
+        TimedBlock(s"Executing script $scriptFileName", println(_)) {
+          val scriptLines = new ScriptRenderer(scriptFile, args.tail).
+            getLines.filterNot(parseLine(_).isEmpty)
+          require(scriptLines.nonEmpty, s"No non-comment lines found in $scriptFileName")
+          for (line <- scriptLines) {
+            val success = runCommand(line)
+            if (!continue && !success) {
+              return false
+            }
+          }
         }
-      }
-    }
 
-    true
+        true
+
+      case _ =>
+        println(s"Could not find the script $scriptFileName! Please make sure the script file exists locally.")
+        false
+    }
   }
 
   override def argCompleter: Completer = {
-    if (scriptDir.exists) {
-      var scriptNames = scriptDir.listFiles.filter(_.isFile).map(_.getName)
-      if (scriptExtension != null) {
-        scriptNames = scriptNames.filter(_.endsWith(scriptExtension))
-      }
-      new ArgumentCompleter(List(new StringsCompleter(scriptNames: _*), new NullCompleter))
-    } else {
-      new NullCompleter
-    }
+    val suffix = s".$scriptExtension"
+    val scriptNames = findScripts(name => scriptExtension == null || name.endsWith(suffix)).map(_.getName)
+    new ArgumentCompleter(List(new StringsCompleter(scriptNames: _*), new NullCompleter))
   }
 
-  override def addOptions(opts: Options) = {
+  private def findScripts(fileNameFilter: String => Boolean): List[File] = for (
+      scriptDir <- scriptDirs
+      if scriptDir.exists();
+      file <- scriptDir.listFiles(new FilenameFilter {
+        override def accept(dir: File, name: String): Boolean = fileNameFilter.apply(name)
+      })
+      if file.isFile && file.canRead
+    ) yield file
+
+  override def addOptions(opts: Options): Unit = {
     opts.addOption("c", "continue", false, "Continue even if there was a failure in execution.")
   }
 }

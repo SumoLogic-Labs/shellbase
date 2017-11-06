@@ -69,12 +69,28 @@ abstract class ShellBase(val name: String) {
   def banner: String = ""
 
   /**
+    * User personal directory with shell-related stuff.
+    */
+  def personalDir: File = new File(new File(System.getProperty("user.home")), "." + name)
+
+  /**
     * Where to look for scripts.
     */
   def scriptDir: File = new File("scripts/")
 
   /**
-    * File extension for scripts.
+    * Where to look for personal scripts.
+    */
+  def personalScriptDir: File = new File(personalDir, "scripts/")
+
+  /**
+    * Start-up script
+    */
+  def initScriptOpt: Option[File] =
+    Option(new File(personalScriptDir, s".init.$scriptExtension")).filter(f => f.exists && f.canRead)
+
+  /**
+    * File extension for scripts (without leading dot).
     */
   def scriptExtension: String = name
 
@@ -86,6 +102,7 @@ abstract class ShellBase(val name: String) {
   /**
     * Name of the history file.
     */
+  // NOTE(konstantin, 2017-27-02): This should probably be moved to $personalDir
   def historyPath: File = new File("%s/.%s_history".format(System.getProperty("user.home"), name))
 
   /**
@@ -169,6 +186,12 @@ abstract class ShellBase(val name: String) {
         return 1
     }
 
+    def runInitScript(): Unit = {
+      for (initScript <- initScriptOpt) {
+        runScriptCommand.executeLine(List(initScript.getAbsolutePath))
+      }
+    }
+
     if (init(cmdLine)) {
       initializeCommands()
 
@@ -189,6 +212,7 @@ abstract class ShellBase(val name: String) {
         }
 
         if (interactiveAfterScript) {
+          runInitScript()
           interactiveMainLoop()
         }
       } else {
@@ -196,6 +220,7 @@ abstract class ShellBase(val name: String) {
 
         println(banner)
 
+        runInitScript()
         interactiveMainLoop()
       }
 
@@ -349,9 +374,13 @@ abstract class ShellBase(val name: String) {
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
 
-  rootSet.commands += new RunScriptCommand(scriptDir, scriptExtension, runCommand, parseLine)  {
+  private val runScriptCommand = new RunScriptCommand(
+    List(scriptDir, personalScriptDir, new File(System.getProperty("user.dir"))),
+    scriptExtension, runCommand, parseLine
+  ) {
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
+  rootSet.commands += runScriptCommand
 
   rootSet.commands += new NotificationCommandSet(notificationManager)  {
     // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
