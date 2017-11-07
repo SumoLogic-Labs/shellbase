@@ -20,6 +20,7 @@ package com.sumologic.shellbase
 
 import java.util
 
+import com.sumologic.shellbase.notifications.{InMemoryShellNotificationManager, ShellNotification, ShellNotificationManager}
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -136,6 +137,39 @@ class ShellBaseTest extends CommonWordSpec {
       }
     }
 
+    "run notifications" in {
+      import scala.collection.mutable
+      val notifications = new mutable.MutableList[(String,String)]
+      val notification = new ShellNotification {
+        override def name: String = "test"
+
+        override def notify(title: String, message: String): Unit = notifications += ((title, message))
+      }
+      val shell = setUpShellBase(
+        List(),
+        new InMemoryShellNotificationManager("tsh", Seq(notification), true)
+      )
+      shell.runCommand("echo \"hello world\"")
+      assert(notifications.toList == List(("tsh", "Command finished successfully: 'echo hello world'")))
+    }
+
+    "don't run notifications for the 'notifications' command set" in {
+      import scala.collection.mutable
+      val notifications = new mutable.MutableList[(String, String)]
+      val notification = new ShellNotification {
+        override def name: String = "test"
+
+        override def notify(title: String, message: String): Unit = notifications += ((title, message))
+      }
+      val shell = setUpShellBase(
+        List(),
+        new InMemoryShellNotificationManager("tsh", Seq(notification), true)
+      )
+      shell.runCommand("notifications disable test")
+      shell.runCommand("notifications enable test")
+      assert(notifications.isEmpty)
+    }
+
     "run all commands separated by && until a failing command" in {
       val commandList = List(new DummyCommand("a"), new DummyFailingCommand("x"), new DummyCommand("c"))
       val sut = setUpShellBase(commandList)
@@ -243,6 +277,20 @@ class ShellBaseTest extends CommonWordSpec {
       override def commands = commandList
 
       override def verboseMode = _verboseMode
+    }
+    res.initializeCommands()
+    res
+  }
+
+  def setUpShellBase(commandList: Seq[ShellCommand], shellNotificationManager: ShellNotificationManager): ShellBase = {
+    _verboseMode = false
+
+    val res = new ShellBase("test") {
+      override def commands: Seq[ShellCommand] = commandList
+
+      override def verboseMode: Boolean = _verboseMode
+
+      override lazy val notificationManager: ShellNotificationManager = shellNotificationManager
     }
     res.initializeCommands()
     res
