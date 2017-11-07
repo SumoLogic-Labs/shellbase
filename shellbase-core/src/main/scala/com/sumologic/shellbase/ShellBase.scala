@@ -318,17 +318,18 @@ abstract class ShellBase(val name: String) {
 
   private def runSingleTokenizedCommand(tokens: List[String]): Boolean = {
     val out = rootSet.executeLine(tokens)
-    val cmd = tokens.mkString("'", " ", "'")
-    val msg = if (out) {
-      s"Command finished successfully: $cmd"
-    } else {
-      s"Command failed: $cmd"
-    }
-    // NOTE(konstantin, 2017-55-03): this is a hackish way to suppress notifications from the notifications command
-    // itself. We should probably introduce a notion of "quiet" commands instead?
-    if (!tokens.headOption.contains(notificationCommandSet.name)) {
+
+    if (rootSet.shouldRunNotifications(tokens)) {
+      val cmd = tokens.mkString("'", " ", "'")
+      val msg = if (out) {
+        s"Command finished successfully: $cmd"
+      } else {
+        s"Command failed: $cmd"
+      }
+
       notificationManager.notify(msg)
     }
+
     out
   }
 
@@ -387,11 +388,10 @@ abstract class ShellBase(val name: String) {
   }
   rootSet.commands += runScriptCommand
 
-  val notificationCommandSet = new NotificationCommandSet(notificationManager)  {
+  rootSet.commands += new NotificationCommandSet(notificationManager) {
     // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
-  rootSet.commands += notificationCommandSet
 }
 
 object ShellBase {

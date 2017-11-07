@@ -135,6 +135,11 @@ abstract class ShellCommand(val name: String,
     */
   def argCompleter: Completer = new NullCompleter
 
+  /**
+    * Returns `true` iff notifications should be run for this command
+    */
+  def shouldRunNotifications(arguments: List[String], commandPath: List[String] = List()): Boolean = true
+
   // -----------------------------------------------------------------------------------------------
   // Internals.
   // -----------------------------------------------------------------------------------------------

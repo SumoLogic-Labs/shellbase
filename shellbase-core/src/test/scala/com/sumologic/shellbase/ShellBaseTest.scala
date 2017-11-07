@@ -153,7 +153,7 @@ class ShellBaseTest extends CommonWordSpec {
       assert(notifications.toList == List(("tsh", "Command finished successfully: 'echo hello world'")))
     }
 
-    "don't run notifications for the 'notifications' command set" in {
+    "not run notifications for the 'notifications' command set" in {
       import scala.collection.mutable
       val notifications = new mutable.MutableList[(String, String)]
       val notification = new ShellNotification {

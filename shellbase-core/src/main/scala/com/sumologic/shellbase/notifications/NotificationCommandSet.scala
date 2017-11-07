@@ -27,6 +27,8 @@ import org.apache.commons.cli.{CommandLine, Options}
 class NotificationCommandSet(manager: ShellNotificationManager)
   extends ShellCommandSet("notifications", "Helps manage notifications for the shell") {
 
+  override def shouldRunNotifications(arguments: List[String], commandPath: List[String] = List()) = false
+
   commands += new ShellCommand("list", "List available notification types and their status") {
     override def execute(cmdLine: CommandLine): Boolean = {
       val table = new ASCIITable[String]
