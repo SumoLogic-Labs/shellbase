@@ -4,7 +4,7 @@
   <groupId>com.sumologic.shellbase</groupId>
   <artifactId>all</artifactId>
   <name>all</name>
-  <version>1.1.2-SNAPSHOT</version>
+  <version>1.1.2</version>
   <packaging>pom</packaging>
   <licenses>
     <license>
