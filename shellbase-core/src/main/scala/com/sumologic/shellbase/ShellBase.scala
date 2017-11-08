@@ -318,12 +318,18 @@ abstract class ShellBase(val name: String) {
 
   private def runSingleTokenizedCommand(tokens: List[String]): Boolean = {
     val out = rootSet.executeLine(tokens)
-    val msg = if (out) {
-      s"[$name] Command finished successfully"
-    } else {
-      s"[$name] Command failed"
+
+    if (rootSet.shouldRunNotifications(tokens)) {
+      val cmd = tokens.mkString("'", " ", "'")
+      val msg = if (out) {
+        s"Command finished successfully: $cmd"
+      } else {
+        s"Command failed: $cmd"
+      }
+
+      notificationManager.notify(msg)
     }
-    notificationManager.notify(msg)
+
     out
   }
 
@@ -382,7 +388,7 @@ abstract class ShellBase(val name: String) {
   }
   rootSet.commands += runScriptCommand
 
-  rootSet.commands += new NotificationCommandSet(notificationManager)  {
+  rootSet.commands += new NotificationCommandSet(notificationManager) {
     // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }

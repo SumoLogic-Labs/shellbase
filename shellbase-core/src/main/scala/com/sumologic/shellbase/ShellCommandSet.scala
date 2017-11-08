@@ -96,6 +96,13 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
     }
   }
 
+  override def shouldRunNotifications(args: List[String], commandPath: List[String]): Boolean =
+    args match {
+      case command :: arguments =>
+        findCommand(command).exists(_.shouldRunNotifications(arguments, commandPath ++ List(command.trim)))
+      case _ => false
+    }
+
   // NOTE(stefan, 2013-12-31): Disable the validation done in ShellCommand, executeLine does
   // something comparable that makes more sense for this use case.
   override def validate(cmdLine: CommandLine): Option[String] = None
