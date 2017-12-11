@@ -18,30 +18,21 @@
  */
 package com.sumologic.shellbase.cmdline
 
-import com.sumologic.shellbase.CommonWordSpec
+import com.sumologic.shellbase.{CommonWordSpec, ExitShellCommandException}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class RichScalaOptionTest extends CommonWordSpec {
   "RichScalaOption" should {
-    "get the value, or exit with specified code" in {
-      class VerySpecificException extends Exception
-      val code = 1234
+    "get the value when defined" in {
+      new RichScalaOption(Some("hi")).
+        getOrExitWithMessage("test message") should be("hi")
+    }
 
-      def fakeExit(c: Int): Unit = {
-        c should be(code)
-        throw new VerySpecificException
-      }
-
-      new RichScalaOption(Some("hi")) {
-        override def exit(exitCode: Int) = fakeExit(exitCode)
-      }.getOrExitWithMessage("test message", code) should be("hi")
-
-      intercept[VerySpecificException] {
-        new RichScalaOption[String](None) {
-          override def exit(exitCode: Int) = fakeExit(exitCode)
-        }.getOrExitWithMessage("test message", code)
+    "throw a ExitShellCommandException when the value isn't defined" in {
+      intercept[ExitShellCommandException] {
+        new RichScalaOption[String](None).getOrExitWithMessage("test message")
       }
     }
   }
