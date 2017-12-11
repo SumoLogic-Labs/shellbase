@@ -39,6 +39,15 @@ These are the components we provide:
 
 We've put together a very simple [example shell](./shellbase-example) that can generate random numbers.  
 
+## [Dev] Building/testing locally
+
+1. Locally compile/install skipping the PGP signatures: 
+
+   ```
+   mvn clean install -Dgpg.skip=true
+   ```
+1. Change your consumer `pom.xml` to depend on the `SNAPSHOT` version generated.
+
 ## [Dev] How to release new version
 
 1. Make sure you have all credentials.
