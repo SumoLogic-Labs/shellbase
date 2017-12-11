@@ -21,7 +21,7 @@ package com.sumologic.shellbase.cmdline
 import java.io.File
 import java.lang.Boolean
 
-import com.sumologic.shellbase.{ShellPrompter, ValidationFailure, ValidationSuccess}
+import com.sumologic.shellbase.{ExitShellCommandException, ShellPrompter, ValidationFailure, ValidationSuccess}
 import org.apache.commons.cli.{CommandLine, GnuParser, HelpFormatter, Options, ParseException}
 
 /**
@@ -38,16 +38,16 @@ object RichCommandLine {
 }
 
 class RichScalaOption[T](optn: Option[T]) {
-  private[cmdline] def exit(exitCode: Int): Unit = System.exit(exitCode)
 
-  def getOrExitWithMessage(message: String, exitCode: Int = 1): T = {
+  private[cmdline] def exit(message: String): Unit = throw new ExitShellCommandException(message)
+
+  def getOrExitWithMessage(message: String): T = {
     optn match {
-      case Some(value) => value
-      case None => {
-        println(message)
-        exit(exitCode)
+      case Some(value) =>
+        value
+      case None =>
+        exit(message)
         null.asInstanceOf[T]
-      }
     }
   }
 }

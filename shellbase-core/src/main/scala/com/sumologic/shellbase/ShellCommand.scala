@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory
 import scala.collection.JavaConversions._
 import scala.concurrent.Future
 
+class ExitShellCommandException(message: String) extends RuntimeException(message)
+
 /**
   * Definition of a shell command.
   */
@@ -72,6 +74,11 @@ abstract class ShellCommand(val name: String,
       }
     } catch {
       case e: IllegalArgumentException => {
+        println(ShellColors.red(e.getMessage))
+        _logger.debug("", e)
+        false
+      }
+      case e: ExitShellCommandException => {
         println(ShellColors.red(e.getMessage))
         _logger.debug("", e)
         false
