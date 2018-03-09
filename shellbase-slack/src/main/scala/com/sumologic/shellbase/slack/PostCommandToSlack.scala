@@ -27,17 +27,18 @@ trait PostCommandToSlack extends ShellCommand with PostToSlackHelper {
 
   override def postCommandToSlack(commandPath: List[String], arguments: List[String]): Option[String] = {
     try {
+      var ts: Option[String] = None
       retry(maxAttempts = 3, sleepTime = 1000) {
         for (msg <- slackMessage(commandPath, arguments)) {
-          sendSlackMessageIfConfigured(s"[$username] $msg")
+          ts = Some(sendSlackMessageIfConfigured(s"[$username] $msg").get.ts)
         }
-        None
+        ts
       }
     } catch {
       case e: Exception => {
         val msg = s"unable to log to slack channel `${slackState.slackChannel.getOrElse("unknown")}`"
         _logger.warn(msg, e)
-        Some(msg)
+        None
       }
     }
   }

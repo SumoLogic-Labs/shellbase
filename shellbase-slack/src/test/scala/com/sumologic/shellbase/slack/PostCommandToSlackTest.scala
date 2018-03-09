@@ -21,6 +21,8 @@ package com.sumologic.shellbase.slack
 import com.flyberrycapital.slack.Methods.Chat
 import com.flyberrycapital.slack.SlackClient
 import com.sumologic.shellbase.ShellCommand
+
+import com.flyberrycapital.slack.Responses.PostMessageResponse
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterEach
@@ -55,10 +57,10 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
       val channel = createAChannel
       sut.slackMessagingConfigured should be (true)
 
-      sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
+      sut.postCommandToSlack(List("Hi"), List.empty) should be (Some(ts))
       verify(chatClient, times(1)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
 
-      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
+      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (Some(ts))
       verify(chatClient, times(2)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
     }
 
@@ -69,7 +71,7 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
 
       when(slackClient.chat).thenThrow(new RuntimeException)
 
-      sut.postCommandToSlack(List.empty, List.empty) should be ('defined)
+      sut.postCommandToSlack(List.empty, List.empty) should be (None)
     }
 
     "retry and maybe eventually succeed" in {
@@ -79,7 +81,7 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
 
       when(slackClient.chat).thenThrow(new RuntimeException).thenReturn(chatClient)
 
-      sut.postCommandToSlack(List.empty, List.empty) should be (None)
+      sut.postCommandToSlack(List.empty, List.empty) should be (Some(ts))
       verify(chatClient, times(1)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
     }
   }
@@ -87,8 +89,11 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
   private def createMockClient: (SlackClient, Chat) = {
     val client = mock[SlackClient]
     val chat = mock[Chat]
+    val response = mock[PostMessageResponse]
     when(mockState.slackClient).thenReturn(Some(client))
     when(client.chat).thenReturn(chat)
+    when(chat.postMessage(any(), anyString(), anyObject[Map[String, String]]())).thenReturn(response)
+    when(response.ts).thenReturn(ts)
     (client, chat)
   }
 
@@ -100,6 +105,7 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
 
   var sut: PostCommandToSlack = _
   var mockState: SlackState = _
+  val ts: String = "#slack_thread_ts"
 
   override protected def beforeEach(): Unit = {
     mockState = mock[SlackState]
