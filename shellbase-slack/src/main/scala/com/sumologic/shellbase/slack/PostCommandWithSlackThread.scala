@@ -20,6 +20,9 @@ package com.sumologic.shellbase.slack
 
 trait PostCommandWithSlackThread extends PostCommandToSlack {
 
+  // add users who have different slack name than local user name: Map(local, slack)
+  protected val diffLocalToSlackUserNameMap: Map[String, String] = Map.empty
+
   override def postCommandToSlack(commandPath: List[String], arguments: List[String]): Option[String] = {
     try {
       var tsOpt: Option[String] = None
@@ -43,13 +46,15 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
 
   override def postInformationToSlackThread(ts: String, commandExecuteTimeDuration: Long, commandResult: Boolean):
   Option[String] = {
+    // if diffLocalToSlackUserNameMap has the local userName, use that value. Otherwise, use local userName as default
+    val slackName = diffLocalToSlackUserNameMap.getOrElse(username, username)
     val replyMessage = {
       if (commandResult) {
         // we use 5 minutes as a time threshold that we want to be notified by Slack about command execution result
-        if (commandExecuteTimeDuration >= 5) s"Hey @${username}， command successed"
+        if (commandExecuteTimeDuration >= 5) s"Hey @${slackName}， command successed"
         else "success"
       } else {
-        if (commandExecuteTimeDuration >= 5) "Hey @${username}， command failed"
+        if (commandExecuteTimeDuration >= 5) "Hey @${slackName}， command failed"
         else "failure"
       }
     }
@@ -57,11 +62,10 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
       if (commandExecuteTimeDuration >= 5) Map("link_names" -> "1")
       else Map.empty
     }
-    val threadInfo = Map("thread_ts" -> ts)
 
     try {
       retry(maxAttempts = 3, sleepTime = 1000) {
-        sendSlackMessageIfConfigured(replyMessage, linkName ++ threadInfo)
+        sendSlackMessageIfConfigured(replyMessage, linkName ++ Map("thread_ts" -> ts))
       }
       None
     } catch {
