@@ -54,6 +54,10 @@ abstract class ShellCommand(val name: String,
         s"$cmd"
       }
     }
+    var commandResult: Boolean = false
+    var tsOpt: Option[String] = None
+    val timeNow = System.currentTimeMillis()
+
     try {
       val cmdLine = parseOptions(arguments)
 
@@ -65,21 +69,13 @@ abstract class ShellCommand(val name: String,
         case None => {
           // do NOT block the command from executing
           import scala.concurrent.ExecutionContext.Implicits.global
-          var tsOpt: Option[String] = None
           Future {
             tsOpt = postCommandToSlack(commandPath, arguments)
           }
-          val timeNow = System.currentTimeMillis()
 
-          val result = execute(cmdLine)
+          commandResult = execute(cmdLine)
 
-          Future {
-            val timeDuration = (System.currentTimeMillis() - timeNow) / 60000
-            tsOpt.foreach { ts =>
-              postInformationToSlackThread(ts, timeDuration, result)
-            }
-          }
-          result
+          commandResult
         }
       }
     } catch {
@@ -110,6 +106,15 @@ abstract class ShellCommand(val name: String,
         false
       }
     } finally {
+      import scala.concurrent.ExecutionContext.Implicits.global
+      Future {
+        // we calculate how long it takes from starting the command to finishing the command
+        val commandExecuteTimeDuration = (System.currentTimeMillis() - timeNow) / 60000
+        tsOpt.foreach { ts =>
+          postInformationToSlackThread(ts, commandExecuteTimeDuration, commandResult)
+        }
+      }
+
       _currentCommand.remove()
     }
   }
@@ -142,7 +147,8 @@ abstract class ShellCommand(val name: String,
     None
   }
 
-  def postInformationToSlackThread(ts: String, timeDuration: Long, result: Boolean): Option[String] = {
+  def postInformationToSlackThread(ts: String, commandExecuteTimeDuration: Long, commandResult: Boolean):
+  Option[String] = {
     None
   }
 

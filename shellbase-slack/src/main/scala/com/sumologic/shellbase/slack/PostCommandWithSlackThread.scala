@@ -18,38 +18,58 @@
  */
 package com.sumologic.shellbase.slack
 
-import com.sumologic.shellbase.ShellCommand
-
-/**
-  * This enables automatically posting the command executed to Slack to document it.
-  */
-trait PostCommandToSlack extends ShellCommand with PostToSlackHelper {
+trait PostCommandWithSlackThread extends PostCommandToSlack {
 
   override def postCommandToSlack(commandPath: List[String], arguments: List[String]): Option[String] = {
     try {
+      var tsOpt: Option[String] = None
       retry(maxAttempts = 3, sleepTime = 1000) {
         for (msg <- slackMessage(commandPath, arguments)) {
-          sendSlackMessageIfConfigured(s"[$username] $msg")
+          sendSlackMessageIfConfigured(s"[$username] $msg") match {
+            case Some(postMessageResponse) => tsOpt = Some(postMessageResponse.ts)
+            case None => None
+          }
         }
-        None
+        tsOpt
       }
     } catch {
       case e: Exception => {
         val msg = s"unable to log to slack channel `${slackState.slackChannel.getOrElse("unknown")}`"
         _logger.warn(msg, e)
-        Some(msg)
+        None
       }
     }
   }
 
-  protected def slackMessage(commandPath: List[String], arguments: List[String]): Option[String] = {
-    val cmdPath = commandPath.mkString(" ").trim
-    val args = arguments.mkString(" ").trim
+  override def postInformationToSlackThread(ts: String, commandExecuteTimeDuration: Long, commandResult: Boolean):
+  Option[String] = {
+    val replyMessage = {
+      if (commandResult) {
+        // we use 5 minutes as a time threshold that we want to be notified by Slack about command execution result
+        if (commandExecuteTimeDuration >= 5) s"Hey @${username}， command successed"
+        else "success"
+      } else {
+        if (commandExecuteTimeDuration >= 5) "Hey @${username}， command failed"
+        else "failure"
+      }
+    }
+    val linkName = {
+      if (commandExecuteTimeDuration >= 5) Map("link_names" -> "1")
+      else Map.empty
+    }
+    val threadInfo = Map("thread_ts" -> ts)
 
-    if (args.isEmpty) {
-      Some(s"`$cmdPath`")
-    } else {
-      Some(s"`$cmdPath $args`")
+    try {
+      retry(maxAttempts = 3, sleepTime = 1000) {
+        sendSlackMessageIfConfigured(replyMessage, linkName ++ threadInfo)
+      }
+      None
+    } catch {
+      case e: Exception => {
+        val msg = s"unable to log to slack channel `${slackState.slackChannel.getOrElse("unknown")}`"
+        _logger.warn(msg, e)
+        None
+      }
     }
   }
 
@@ -69,7 +89,3 @@ trait PostCommandToSlack extends ShellCommand with PostToSlackHelper {
     }
   }
 }
-
-
-
-

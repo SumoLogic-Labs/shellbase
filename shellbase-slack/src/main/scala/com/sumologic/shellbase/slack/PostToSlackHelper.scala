@@ -37,7 +37,7 @@ trait PostToSlackHelper {
     if (!blacklistedUsernames.contains(username)) {
       for (client <- slackState.slackClient;
            channel <- slackState.slackChannel) {
-        message = Some(client.chat.postMessage(channel, msg, slackState.slackOptions ++ additionalOptions))
+        message = Option(client.chat.postMessage(channel, msg, slackState.slackOptions ++ additionalOptions))
       }
     }
     message
