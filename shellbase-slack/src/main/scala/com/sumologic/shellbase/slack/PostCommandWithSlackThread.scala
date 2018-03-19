@@ -23,6 +23,10 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
   // add users who have different slack name than local user name: Map(local, slack)
   protected val diffLocalToSlackUserNameMap: Map[String, String] = Map.empty
 
+  // command execution time threshold that we want to be notified by Slack about command execution result
+  // 5 minutes as default
+  protected val commandNotifyUserTimeThreshold: Long = 5
+
   override def postCommandToSlack(commandPath: List[String], arguments: List[String]): Option[String] = {
     try {
       var tsOpt: Option[String] = None
@@ -50,16 +54,15 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
     val slackName = diffLocalToSlackUserNameMap.getOrElse(username, username)
     val replyMessage = {
       if (commandResult) {
-        // we use 5 minutes as a time threshold that we want to be notified by Slack about command execution result
-        if (commandExecuteTimeDuration >= 5) s"Hey @${slackName}， command successed"
+        if (commandExecuteTimeDuration >= commandNotifyUserTimeThreshold) s"Hey @${slackName}， command successed"
         else "success"
       } else {
-        if (commandExecuteTimeDuration >= 5) "Hey @${slackName}， command failed"
+        if (commandExecuteTimeDuration >= commandNotifyUserTimeThreshold) "Hey @${slackName}， command failed"
         else "failure"
       }
     }
     val linkName = {
-      if (commandExecuteTimeDuration >= 5) Map("link_names" -> "1")
+      if (commandExecuteTimeDuration >= commandNotifyUserTimeThreshold) Map("link_names" -> "1")
       else Map.empty
     }
 
