@@ -44,7 +44,7 @@ We've put together a very simple [example shell](./shellbase-example) that can g
 1. Locally compile/install skipping the PGP signatures: 
 
    ```
-   mvn clean install -Dgpg.skip=true
+   ./mvnw clean install -Dgpg.skip=true
    ```
 1. Change your consumer `pom.xml` to depend on the `SNAPSHOT` version generated.
 
@@ -70,7 +70,7 @@ We've put together a very simple [example shell](./shellbase-example) that can g
     gpg --use-agent --sign a
 
   ```
-2. `mvn release:prepare`
-3. `mvn release:perform` (alternative `git checkout HEAD~1 && mvn deploy`)
+2. `./mvnw release:prepare`
+3. `./mvnw release:perform` (alternative `git checkout HEAD~1 && mvn deploy`)
 4. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic and release your repo.
 5. Push your commits as PR (`git push origin master:new-branch`)
