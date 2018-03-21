@@ -73,5 +73,5 @@ We've put together a very simple [example shell](./shellbase-example) that can g
 2. `./mvnw release:prepare`
 3. `git clean -i` and remove untracked files, besides release.properties
 4. `./mvnw release:perform` (alternative `git checkout HEAD~1 && ./mvnw deploy`)
-5. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic and release your repo.
+5. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic and release your repo. NOTE: If you had to login, reload the URL.  It doesn't take you to the right page post-login
 6. Push your commits as PR (`git push origin master:new-branch`)
