@@ -18,6 +18,8 @@
  */
 package com.sumologic.shellbase.slack
 
+import com.flyberrycapital.slack.Responses.PostMessageResponse
+
 /**
   * This provides utility to ShellCommands to post anything to Slack as part of the command
   */
@@ -29,12 +31,15 @@ trait PostToSlackHelper {
 
   def slackMessagingConfigured = slackState.slackClient.isDefined && slackState.slackChannel.isDefined
 
-  def sendSlackMessageIfConfigured(msg: String, additionalOptions: Map[String, String] = Map.empty): Unit = {
+  def sendSlackMessageIfConfigured(msg: String, additionalOptions: Map[String, String] = Map.empty):
+  Option[PostMessageResponse] = {
+    var message : Option[PostMessageResponse] = None
     if (!blacklistedUsernames.contains(username)) {
       for (client <- slackState.slackClient;
            channel <- slackState.slackChannel) {
-        client.chat.postMessage(channel, msg, slackState.slackOptions ++ additionalOptions)
+        message = Option(client.chat.postMessage(channel, msg, slackState.slackOptions ++ additionalOptions))
       }
     }
+    message
   }
 }

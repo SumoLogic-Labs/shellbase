@@ -19,12 +19,12 @@
 package com.sumologic.shellbase
 
 import com.sumologic.shellbase.cmdline.ArgumentTrackingOptions
+
 import jline.console.completer.{Completer, NullCompleter, StringsCompleter}
 import org.apache.commons.cli.{CommandLine, GnuParser, HelpFormatter, Options, ParseException, UnrecognizedOptionException}
 import org.slf4j.LoggerFactory
-
 import scala.collection.JavaConversions._
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ExitShellCommandException(message: String) extends RuntimeException(message)
 
@@ -35,7 +35,8 @@ abstract class ShellCommand(val name: String,
                             val helpText: String,
                             val aliases: List[String] = List[String](),
                             val deprecated: Boolean = false,
-                            val hiddenInHelp: Boolean = false) {
+                            val hiddenInHelp: Boolean = false)
+                           (implicit e: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global) {
 
   protected val _logger = LoggerFactory.getLogger(getClass)
   protected lazy val prompter = new ShellPrompter()
@@ -54,6 +55,10 @@ abstract class ShellCommand(val name: String,
         s"$cmd"
       }
     }
+    var commandResult: Boolean = false
+    var slackTsOpt: Option[String] = None
+    val timeNow = System.currentTimeMillis()
+
     try {
       val cmdLine = parseOptions(arguments)
 
@@ -64,12 +69,13 @@ abstract class ShellCommand(val name: String,
         }
         case None => {
           // do NOT block the command from executing
-          import scala.concurrent.ExecutionContext.Implicits.global
           Future {
-            postCommandToSlack(commandPath, arguments)
+            slackTsOpt = postCommandToSlack(commandPath, arguments)
           }
 
-          execute(cmdLine)
+          commandResult = execute(cmdLine)
+
+          commandResult
         }
       }
     } catch {
@@ -100,6 +106,14 @@ abstract class ShellCommand(val name: String,
         false
       }
     } finally {
+      Future{
+        // we calculate how long it takes from starting the command to finishing the command
+        val commandExecuteTimeDuration = (System.currentTimeMillis() - timeNow) / 60000
+        slackTsOpt.foreach { ts =>
+          postInformationToSlackThread(ts, commandExecuteTimeDuration, commandResult)
+        }
+      }
+
       _currentCommand.remove()
     }
   }
@@ -129,6 +143,12 @@ abstract class ShellCommand(val name: String,
   }
 
   def postCommandToSlack(cmdPath: List[String], args: List[String]): Option[String] = {
+    None
+  }
+
+  def postInformationToSlackThread(ts: String,
+                                   commandExecuteTimeDuration: Long,
+                                   commandResult: Boolean): Option[String] = {
     None
   }
 
