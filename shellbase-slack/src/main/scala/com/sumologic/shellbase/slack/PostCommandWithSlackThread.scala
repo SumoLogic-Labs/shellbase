@@ -55,11 +55,11 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
     val slackName = diffLocalToSlackUserNameMap.getOrElse(username, username)
     val replyMessage = {
       if (commandResult) {
-        if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) s"Hey @${slackName}， command successed"
-        else "success"
+        if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) s"Hey @${slackName}，command succeeded"
+        else "Command succeeded"
       } else {
-        if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) "Hey @${slackName}， command failed"
-        else "failure"
+        if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) "Hey @${slackName}，command failed"
+        else "Command failed"
       }
     }
     val linkName = {
