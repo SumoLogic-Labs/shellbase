@@ -58,7 +58,7 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
         if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) s"Hey @${slackName}，command succeeded"
         else "Command succeeded"
       } else {
-        if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) "Hey @${slackName}，command failed"
+        if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) s"Hey @${slackName}，command failed"
         else "Command failed"
       }
     }
