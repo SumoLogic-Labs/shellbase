@@ -25,5 +25,7 @@ trait SlackState {
 
   def slackChannel: Option[String]
 
+  def slackChannels: List[String] = slackChannel.toList
+
   def slackOptions: Map[String, String] = Map()
 }

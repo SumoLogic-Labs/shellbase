@@ -35,7 +35,7 @@ trait PostCommandToSlack extends ShellCommand with PostToSlackHelper {
       }
     } catch {
       case e: Exception => {
-        val msg = s"unable to log to slack channel `${slackState.slackChannel.getOrElse("unknown")}`"
+        val msg = s"unable to log to slack channel `${slackState.slackChannels}`"
         _logger.warn(msg, e)
         Some(msg)
       }

@@ -41,7 +41,7 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
       }
     } catch {
       case e: Exception => {
-        val msg = s"unable to log to slack channel `${slackState.slackChannel.getOrElse("unknown")}`"
+        val msg = s"unable to log to slack channel `${slackState.slackChannels}`"
         _logger.warn(msg, e)
         None
       }
@@ -74,7 +74,7 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
       None
     } catch {
       case e: Exception => {
-        val msg = s"unable to log to slack channel `${slackState.slackChannel.getOrElse("unknown")}`"
+        val msg = s"unable to log to slack channel `${slackState.slackChannels}`"
         _logger.warn(msg, e)
         None
       }
