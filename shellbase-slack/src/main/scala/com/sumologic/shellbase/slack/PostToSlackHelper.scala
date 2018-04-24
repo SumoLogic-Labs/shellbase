@@ -29,14 +29,14 @@ trait PostToSlackHelper {
   protected val username: String = System.getProperty("user.name", "unknown")
   protected val blacklistedUsernames: Set[String] = Set.empty
 
-  def slackMessagingConfigured = slackState.slackClient.isDefined && slackState.slackChannel.isDefined
+  def slackMessagingConfigured: Boolean = slackState.slackClient.isDefined && slackState.slackChannels.nonEmpty
 
   def sendSlackMessageIfConfigured(msg: String, additionalOptions: Map[String, String] = Map.empty):
   Option[PostMessageResponse] = {
     var message : Option[PostMessageResponse] = None
     if (!blacklistedUsernames.contains(username)) {
       for (client <- slackState.slackClient;
-           channel <- slackState.slackChannel) {
+           channel <- slackState.slackChannels) {
         message = Option(client.chat.postMessage(channel, msg, slackState.slackOptions ++ additionalOptions))
       }
     }
