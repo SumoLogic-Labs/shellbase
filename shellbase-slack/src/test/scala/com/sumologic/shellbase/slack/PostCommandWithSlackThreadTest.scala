@@ -80,6 +80,18 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
       )
     }
 
+    "not send send the message to filtered out channels" in {
+      val (_, chatClient) = createMockClient
+      createTwoChannelsAndOneBlacklistedOne
+      sut.slackMessagingConfigured should be (true)
+
+      sut.postCommandToSlack(List("Hi"), List.empty) should be (Some(ts))
+      verify(chatClient, times(0)).postMessage("#my_channel3", anyString(), anyObject[Map[String, String]]())
+
+      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (Some(ts))
+      verify(chatClient, times(0)).postMessage("#my_channel3", anyString(), anyObject[Map[String, String]]())
+    }
+
     "return an exception as text when thrown" in {
       val (slackClient, _) = createMockClient
       val channel = createAChannel
@@ -146,6 +158,12 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
     channels
   }
 
+  private def createTwoChannelsAndOneBlacklistedOne: List[String] = {
+    val channels = List("#my_channel1", "#my_channel2", "#my_channel3")
+    when(mockState.slackChannels).thenReturn(channels)
+    channels
+  }
+
   var sut: PostCommandWithSlackThread = _
   var mockState: SlackState = _
   val ts: String = "#slack_thread_ts"
@@ -164,6 +182,8 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
 
     sut = new ShellCommand("", "") with PostCommandWithSlackThread {
       override protected val slackState: SlackState = mockState
+
+      override def slackChannelFilter(channelName: String): Boolean = channelName != "#my_channel3"
 
       override def execute(cmdLine: CommandLine): Boolean = ???
     }

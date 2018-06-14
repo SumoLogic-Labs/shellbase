@@ -31,12 +31,14 @@ trait PostToSlackHelper {
 
   def slackMessagingConfigured: Boolean = slackState.slackClient.isDefined && slackState.slackChannels.nonEmpty
 
+  def slackChannelFilter(channelName: String): Boolean = true
+
   def sendSlackMessageIfConfigured(msg: String, additionalOptions: Map[String, String] = Map.empty):
   Option[PostMessageResponse] = {
     var message : Option[PostMessageResponse] = None
     if (!blacklistedUsernames.contains(username)) {
       for (client <- slackState.slackClient;
-           channel <- slackState.slackChannels) {
+           channel <- slackState.slackChannels.filter(slackChannelFilter)) {
         message = Option(client.chat.postMessage(channel, msg, slackState.slackOptions ++ additionalOptions))
       }
     }
