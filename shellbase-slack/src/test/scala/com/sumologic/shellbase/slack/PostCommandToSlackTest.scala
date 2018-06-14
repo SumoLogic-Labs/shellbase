@@ -85,10 +85,10 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
       sut.slackMessagingConfigured should be (true)
 
       sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
-      verify(chatClient, times(0)).postMessage("#my_channel3", anyString(), anyObject[Map[String, String]]())
+      verify(chatClient, times(0)).postMessage(matcher_eq("#my_channel3"), anyString(), anyObject[Map[String, String]]())
 
       sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
-      verify(chatClient, times(0)).postMessage("#my_channel3", anyString(), anyObject[Map[String, String]]())
+      verify(chatClient, times(0)).postMessage(matcher_eq("#my_channel3"), anyString(), anyObject[Map[String, String]]())
     }
 
     "return an exception as text when thrown" in {

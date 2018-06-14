@@ -86,10 +86,10 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
       sut.slackMessagingConfigured should be (true)
 
       sut.postCommandToSlack(List("Hi"), List.empty) should be (Some(ts))
-      verify(chatClient, times(0)).postMessage("#my_channel3", anyString(), anyObject[Map[String, String]]())
+      verify(chatClient, times(0)).postMessage(matcher_eq("#my_channel3"), anyString(), anyObject[Map[String, String]]())
 
       sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (Some(ts))
-      verify(chatClient, times(0)).postMessage("#my_channel3", anyString(), anyObject[Map[String, String]]())
+      verify(chatClient, times(0)).postMessage(matcher_eq("#my_channel3"), anyString(), anyObject[Map[String, String]]())
     }
 
     "return an exception as text when thrown" in {
