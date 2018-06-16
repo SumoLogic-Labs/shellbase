@@ -78,6 +78,19 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
       )
     }
 
+
+    "not send the message to filtered out channels when configured" in {
+      val (_, chatClient) = createMockClient
+      createTwoChannelsAndOneBlacklistedOne
+      sut.slackMessagingConfigured should be (true)
+
+      sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
+      verify(chatClient, times(0)).postMessage(matcher_eq("#my_channel3"), anyString(), anyObject[Map[String, String]]())
+
+      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
+      verify(chatClient, times(0)).postMessage(matcher_eq("#my_channel3"), anyString(), anyObject[Map[String, String]]())
+    }
+
     "return an exception as text when thrown" in {
       val (slackClient, _) = createMockClient
       val channel = createAChannel
@@ -121,6 +134,12 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
     channels
   }
 
+  private def createTwoChannelsAndOneBlacklistedOne: List[String] = {
+    val channels = List("#my_channel1", "#my_channel2", "#my_channel3")
+    when(mockState.slackChannels).thenReturn(channels)
+    channels
+  }
+
   var sut: PostCommandToSlack = _
   var mockState: SlackState = _
 
@@ -137,6 +156,7 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
 
     sut = new ShellCommand("", "") with PostCommandToSlack {
       override protected val slackState: SlackState = mockState
+      override def slackChannelFilter(channelName: String): Boolean = channelName != "#my_channel3"
       override def execute(cmdLine: CommandLine): Boolean = ???
     }
   }
