@@ -14,13 +14,13 @@ These are the components we provide:
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-core</artifactId>
-      <version>1.2.2</version>
+      <version>1.4.0</version>
     </dependency>
 
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-slack</artifactId>
-      <version>1.2.2</version>
+      <version>1.4.0</version>
     </dependency>
 ```
 
