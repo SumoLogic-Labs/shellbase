@@ -28,6 +28,24 @@ import org.scalatest.junit.JUnitRunner
 class RichCommandLineTest extends CommonWordSpec {
 
   "Command line options" should {
+    "not accept options with the same short name" in {
+      val options = new Options
+      options += new CommandLineOption("s", "one", true, "same shit")
+      the[IllegalArgumentException] thrownBy {
+        options += new CommandLineOption("s", "two", true, "different day")
+      }
+    }
+
+    "not accept options with the same long name" in {
+      val options = new Options
+      options += new CommandLineOption("x", "same", true, "same shit")
+      the[IllegalArgumentException] thrownBy {
+        options += new CommandLineOption("y", "same", true, "different day")
+      }
+    }
+  }
+
+  "RichCommandLine.get" should {
     "return a default value if no value was provided on the command line" in {
 
       val defaultValue = "blargh"
@@ -51,22 +69,6 @@ class RichCommandLineTest extends CommonWordSpec {
       val providedValue = "wtf?"
       val cmdLine = Array[String]("-s", providedValue).parseCommandLine(options)
       cmdLine.get.get(sut).get should equal(providedValue)
-    }
-
-    "not accept options with the same short name" in {
-      val options = new Options
-      options += new CommandLineOption("s", "one", true, "same shit")
-      the[IllegalArgumentException] thrownBy {
-        options += new CommandLineOption("s", "two", true, "different day")
-      }
-    }
-
-    "not accept options with the same long name" in {
-      val options = new Options
-      options += new CommandLineOption("x", "same", true, "same shit")
-      the[IllegalArgumentException] thrownBy {
-        options += new CommandLineOption("y", "same", true, "different day")
-      }
     }
   }
 
