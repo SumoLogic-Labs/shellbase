@@ -70,4 +70,31 @@ class RichCommandLineTest extends CommonWordSpec {
     }
   }
 
+  "RichCommandLine.apply" should {
+    "return a provided value" in {
+      val sut = new CommandLineOption("a", "animal", false, "halp")
+
+      val options = new Options
+      options += sut
+
+      val providedValue = "wombat"
+      val cmdLine = Array[String]("-a", providedValue).parseCommandLine(options).get
+      cmdLine(sut) should equal(providedValue)
+    }
+
+    "throw a NoSuchElementException for a missing command line parameter" in {
+      val sut = new CommandLineOption("a", "animal", false, "halp")
+      val anotherOption = new CommandLineOption("ml", "my-love", true, "here I am!")
+
+      val options = new Options
+      options += sut
+      options += anotherOption
+
+      val cmdLine = Array[String]("--my-love", "wombat").parseCommandLine(options).get
+      a[NoSuchElementException] should be thrownBy {
+        cmdLine(sut)
+      }
+    }
+  }
+
 }
