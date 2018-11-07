@@ -89,6 +89,10 @@ class RichCommandLine(cmdLine: CommandLine) {
     }
   }
 
+  def apply(elem: CommandLineElementWithValue): String = get(elem).getOrElse {
+    throw new NoSuchElementException(s"${elem.name} not set!")
+  }
+
   private def getArg(arg: CommandLineArgument): Option[String] = {
     val args = cmdLine.getArgs
     if (args != null && args.length > arg.index) {
