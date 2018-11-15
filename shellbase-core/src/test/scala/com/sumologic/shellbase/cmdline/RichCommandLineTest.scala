@@ -28,6 +28,24 @@ import org.scalatest.junit.JUnitRunner
 class RichCommandLineTest extends CommonWordSpec {
 
   "Command line options" should {
+    "not accept options with the same short name" in {
+      val options = new Options
+      options += new CommandLineOption("s", "one", true, "same shit")
+      the[IllegalArgumentException] thrownBy {
+        options += new CommandLineOption("s", "two", true, "different day")
+      }
+    }
+
+    "not accept options with the same long name" in {
+      val options = new Options
+      options += new CommandLineOption("x", "same", true, "same shit")
+      the[IllegalArgumentException] thrownBy {
+        options += new CommandLineOption("y", "same", true, "different day")
+      }
+    }
+  }
+
+  "RichCommandLine.get" should {
     "return a default value if no value was provided on the command line" in {
 
       val defaultValue = "blargh"
@@ -52,20 +70,31 @@ class RichCommandLineTest extends CommonWordSpec {
       val cmdLine = Array[String]("-s", providedValue).parseCommandLine(options)
       cmdLine.get.get(sut).get should equal(providedValue)
     }
+  }
 
-    "not accept options with the same short name" in {
+  "RichCommandLine.apply" should {
+    "return a provided value" in {
+      val sut = new CommandLineOption("a", "animal", false, "halp")
+
       val options = new Options
-      options += new CommandLineOption("s", "one", true, "same shit")
-      the[IllegalArgumentException] thrownBy {
-        options += new CommandLineOption("s", "two", true, "different day")
-      }
+      options += sut
+
+      val providedValue = "wombat"
+      val cmdLine = Array[String]("-a", providedValue).parseCommandLine(options).get
+      cmdLine(sut) should equal(providedValue)
     }
 
-    "not accept options with the same long name" in {
+    "throw a NoSuchElementException for a missing command line parameter" in {
+      val sut = new CommandLineOption("a", "animal", false, "halp")
+      val anotherOption = new CommandLineOption("ml", "my-love", true, "here I am!")
+
       val options = new Options
-      options += new CommandLineOption("x", "same", true, "same shit")
-      the[IllegalArgumentException] thrownBy {
-        options += new CommandLineOption("y", "same", true, "different day")
+      options += sut
+      options += anotherOption
+
+      val cmdLine = Array[String]("--my-love", "wombat").parseCommandLine(options).get
+      a[NoSuchElementException] should be thrownBy {
+        cmdLine(sut)
       }
     }
   }
