@@ -236,33 +236,33 @@ class ShellBaseTest extends CommonWordSpec {
       complete("ba", 2) should equal(0 -> List("ban", "bananas"))
       complete("ban", 2) should equal(0 -> List("ban", "bananas"))
       complete("ban", 3) should equal(0 -> List("ban", "bananas"))
-      complete("ban yellow b", 12) should equal(11 -> List("ban", "banners", "boxes "))
+      complete("ban yellow b", 12) should equal(11 -> List("ban", "banners", "boxes"))
     }
 
     "append a space when the choice is unambiguous" in {
-      complete("ban yell", 8) should equal(4 -> List("yellow "))
-      complete("ban yellow", 10) should equal(4 -> List("yellow "))
-      complete("pom", 3) should equal(0 -> List("pom "))
-      complete("persimmons", 3) should equal(0 -> List("persimmons "))
+      complete("ban yell", 8) should equal(4 -> List("yellow"))
+      complete("ban yellow", 10) should equal(4 -> List("yellow"))
+      complete("pom", 3) should equal(0 -> List("pom"))
+      complete("persimmons", 3) should equal(0 -> List("persimmons"))
     }
 
     "suggest candidate next tokens after the current one" in {
-      complete("ban ", 4) should equal(4 -> List("?", "help", "yellow "))
-      complete("ban yellow ", 11) should equal(11 -> List("?", "help", "ban", "banners", "boxes "))
+      complete("ban ", 4) should equal(4 -> List("?", "help", "yellow"))
+      complete("ban yellow ", 11) should equal(11 -> List("?", "help", "ban", "banners", "boxes"))
     }
 
     "complete properly when there are more characters after the one being completed" in {
-      complete("ban yell boxes", 8) should equal(4 -> List("yellow "))
-      complete("ban yellow b -skip none --permanent", 12) should equal(11 -> List("ban", "banners", "boxes "))
+      complete("ban yell boxes", 8) should equal(4 -> List("yellow"))
+      complete("ban yellow b -skip none --permanent", 12) should equal(11 -> List("ban", "banners", "boxes"))
       complete("ban yellow bags", 13)._2 should be('empty)
     }
 
     "account for extra whitespaces" in {
       complete("   app", 6) should equal(3 -> List("app", "apples"))
-      complete("   bananas", 10) should equal(3 -> List("bananas "))
-      complete("   bananas ", 11) should equal(11 -> List("?", "help", "yellow "))
-      complete("   bananas  ", 12) should equal(12 -> List("?", "help", "yellow "))
-      complete("   ban    yellow  banners", 25) should equal(18 -> List("banners "))
+      complete("   bananas", 10) should equal(3 -> List("bananas"))
+      complete("   bananas ", 11) should equal(11 -> List("?", "help", "yellow"))
+      complete("   bananas  ", 12) should equal(12 -> List("?", "help", "yellow"))
+      complete("   ban    yellow  banners", 25) should equal(18 -> List("banners"))
     }
   }
 
