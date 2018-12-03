@@ -199,14 +199,15 @@ class ShellBaseTest extends CommonWordSpec {
       val shell = new AutoCompleteTestShell
       shell.initializeCommands()
       val completer = shell.rootSet.argCompleter
-      val candidates = new util.LinkedList[CharSequence]()
-      val startPos = completer.complete(input, cursor, candidates)
+      val candidatesPlaceholder = new util.LinkedList[CharSequence]()
+      val startPos = completer.complete(input, cursor, candidatesPlaceholder)
+      val candidates = candidatesPlaceholder.asScala
 
       // adapted/copied logic from CandidateListCompletionHandler for full completion
-      if (candidates.size == 1 && cursor == input.length && !candidates.asScala.head.toString.endsWith(" ")) {
-        startPos -> List(candidates.asScala.head.toString + " ")
+      if (candidatesPlaceholder.size == 1 && cursor == input.length && !candidates.head.toString.endsWith(" ")) {
+        startPos -> List(candidates.head.toString + " ")
       } else {
-        startPos -> candidates.asScala.map(_.toString).toList
+        startPos -> candidates.map(_.toString).toList
       }
     }
 
