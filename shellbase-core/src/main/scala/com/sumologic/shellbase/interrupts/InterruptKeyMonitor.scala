@@ -61,13 +61,15 @@ object InterruptKeyMonitor {
     def now = System.currentTimeMillis()
 
     override def handle(sig: Signal) {
-      if (now - lastInterrupt < 1000) {
-        println("Killing the shell...")
-        System.exit(1)
-      } else {
-        println("\nPress Ctrl-C again to exit.")
-        lastInterrupt = now
-        callbackOpt.foreach(_.apply())
+      if (callbackOpt.isDefined) {
+        if (now - lastInterrupt < 1000) {
+          println("Killing the shell...")
+          System.exit(1)
+        } else {
+          println("\nPress Ctrl-C again to exit.")
+          lastInterrupt = now
+          callbackOpt.foreach(_.apply())
+        }
       }
     }
   }

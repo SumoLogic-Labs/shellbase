@@ -26,7 +26,7 @@ import com.sumologic.shellbase.commands._
 import com.sumologic.shellbase.interrupts.{InterruptKeyMonitor, KillableSingleThread}
 import com.sumologic.shellbase.notifications._
 import com.sumologic.shellbase.timeutil.TimeFormats
-import jline.console.ConsoleReader
+import jline.console.{ConsoleReader, UserInterruptException}
 import jline.console.history.FileHistory
 import org.apache.commons.cli.{CommandLine, GnuParser, HelpFormatter, Options, ParseException, Option => CLIOption}
 import org.slf4j.LoggerFactory
@@ -155,7 +155,7 @@ abstract class ShellBase(val name: String) {
 
   private val reader = new ConsoleReader()
   reader.setHistory(history)
-  reader.setHandleUserInterrupt(false)
+  reader.setHandleUserInterrupt(true)
 
   def main(args: Array[String]) = {
     Thread.currentThread.setName("Shell main")
@@ -249,7 +249,11 @@ abstract class ShellBase(val name: String) {
 
     var keepRunning = true
     while (keepRunning) {
-      val line = reader.readLine(prompt)
+      val line = try {
+        reader.readLine(prompt)
+      } catch {
+        case _: UserInterruptException => "" // do nothing, that's fine
+      }
 
       // Line is null on CTRL-D...
       if (line == null) {
