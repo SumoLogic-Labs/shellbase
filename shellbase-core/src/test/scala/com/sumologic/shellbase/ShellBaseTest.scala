@@ -21,6 +21,7 @@ package com.sumologic.shellbase
 import java.util
 
 import com.sumologic.shellbase.notifications.{InMemoryShellNotificationManager, ShellNotification, ShellNotificationManager}
+import jline.console.completer.CandidateListCompletionHandler
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
@@ -200,7 +201,13 @@ class ShellBaseTest extends CommonWordSpec {
       val completer = shell.rootSet.argCompleter
       val candidates = new util.LinkedList[CharSequence]()
       val startPos = completer.complete(input, cursor, candidates)
-      startPos -> candidates.asScala.map(_.toString).toList
+
+      // adapted/copied logic from CandidateListCompletionHandler for full completion
+      if (candidates.size == 1 && cursor == input.length && !candidates.asScala.head.toString.endsWith(" ")) {
+        startPos -> List(candidates.asScala.head.toString + " ")
+      } else {
+        startPos -> candidates.asScala.map(_.toString).toList
+      }
     }
 
     class AutoCompleteTestShell extends ShellBase("AutoCompleteTestShell") {
@@ -240,9 +247,12 @@ class ShellBaseTest extends CommonWordSpec {
     }
 
     "append a space when the choice is unambiguous" in {
-      complete("ban yell", 8) should equal(4 -> List("yellow"))
-      complete("ban yellow", 10) should equal(4 -> List("yellow"))
-      complete("pom", 3) should equal(0 -> List("pom"))
+      complete("ban yell", 8) should equal(4 -> List("yellow "))
+      complete("ban yellow", 10) should equal(4 -> List("yellow "))
+      complete("pom", 3) should equal(0 -> List("pom "))
+    }
+
+    "not append a space when the choice is unambiguous, but the cursor wasn't at the end" in {
       complete("persimmons", 3) should equal(0 -> List("persimmons"))
     }
 
@@ -259,10 +269,10 @@ class ShellBaseTest extends CommonWordSpec {
 
     "account for extra whitespaces" in {
       complete("   app", 6) should equal(3 -> List("app", "apples"))
-      complete("   bananas", 10) should equal(3 -> List("bananas"))
+      complete("   bananas", 10) should equal(3 -> List("bananas "))
       complete("   bananas ", 11) should equal(11 -> List("?", "help", "yellow"))
       complete("   bananas  ", 12) should equal(12 -> List("?", "help", "yellow"))
-      complete("   ban    yellow  banners", 25) should equal(18 -> List("banners"))
+      complete("   ban    yellow  banners", 25) should equal(18 -> List("banners "))
     }
   }
 
