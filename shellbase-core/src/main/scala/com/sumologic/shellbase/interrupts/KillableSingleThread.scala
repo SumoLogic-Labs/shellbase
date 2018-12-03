@@ -40,6 +40,7 @@ class KillableSingleThread[T](fn: => T) {
 
   private def interrupt(): Unit = {
     thread.interrupt()
+    resultPromise.tryFailure(new InterruptedException)
   }
 
   private def stop(): Unit = {

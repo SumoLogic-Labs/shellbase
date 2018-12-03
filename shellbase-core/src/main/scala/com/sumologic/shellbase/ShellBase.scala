@@ -278,6 +278,7 @@ abstract class ShellBase(val name: String) {
           println(s"Caught interrupt.")
           println(s"Killing command with 1s grace period: `$line`...")
           commandRunner.kill(Duration(1, TimeUnit.SECONDS))
+          println("Killed.")
         }
       })
 
