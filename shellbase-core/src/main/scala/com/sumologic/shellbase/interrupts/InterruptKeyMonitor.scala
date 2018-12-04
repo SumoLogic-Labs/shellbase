@@ -41,11 +41,16 @@ class InterruptKeyMonitor {
   def stopMonitoring(): Unit = {
     interruptKeyHandler.clearCallbacks()
   }
+
+  def isMonitoring: Boolean = {
+    interruptKeyHandler.hasACallback()
+  }
 }
 
 object InterruptKeyMonitor {
 
   class InterruptKeyHandler extends SignalHandler {
+
     type CallbackFn = () => Unit
     private var callbackOpt: Option[CallbackFn] = None
     private var lastInterrupt = 0L
@@ -57,6 +62,8 @@ object InterruptKeyMonitor {
     def clearCallbacks(): Unit = {
       callbackOpt = None
     }
+
+    def hasACallback(): Boolean = callbackOpt.isDefined
 
     def now = System.currentTimeMillis()
 

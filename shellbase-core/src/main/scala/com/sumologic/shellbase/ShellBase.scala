@@ -150,7 +150,8 @@ abstract class ShellBase(val name: String) {
     }
   })
 
-  private val interruptKeyMonitor = new InterruptKeyMonitor()
+  // VisibleForTesting
+  private[shellbase] val interruptKeyMonitor = new InterruptKeyMonitor()
   interruptKeyMonitor.init()
 
   private val reader = new ConsoleReader()
@@ -267,7 +268,8 @@ abstract class ShellBase(val name: String) {
     println("Exiting...")
   }
 
-  private def runKillableCommand(line: String): Boolean = {
+  // VisibleForTesting
+  private[shellbase] def runKillableCommand(line: String): Boolean = {
     val commandRunner = new KillableSingleThread(runCommand(line))
 
     // Wait a bit for completion, so quick commands don't need to go through the keyMonitor.
