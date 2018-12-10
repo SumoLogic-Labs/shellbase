@@ -26,7 +26,7 @@ import com.sumologic.shellbase.commands._
 import com.sumologic.shellbase.interrupts.{InterruptKeyMonitor, KillableSingleThread}
 import com.sumologic.shellbase.notifications._
 import com.sumologic.shellbase.timeutil.TimeFormats
-import jline.console.ConsoleReader
+import jline.console.{ConsoleReader, UserInterruptException}
 import jline.console.history.FileHistory
 import org.apache.commons.cli.{CommandLine, GnuParser, HelpFormatter, Options, ParseException, Option => CLIOption}
 import org.slf4j.LoggerFactory
@@ -150,12 +150,13 @@ abstract class ShellBase(val name: String) {
     }
   })
 
-  private val interruptKeyMonitor = new InterruptKeyMonitor()
+  // VisibleForTesting
+  private[shellbase] val interruptKeyMonitor = new InterruptKeyMonitor()
   interruptKeyMonitor.init()
 
   private val reader = new ConsoleReader()
   reader.setHistory(history)
-  reader.setHandleUserInterrupt(false)
+  reader.setHandleUserInterrupt(true)
 
   def main(args: Array[String]) = {
     Thread.currentThread.setName("Shell main")
@@ -249,7 +250,11 @@ abstract class ShellBase(val name: String) {
 
     var keepRunning = true
     while (keepRunning) {
-      val line = reader.readLine(prompt)
+      val line = try {
+        reader.readLine(prompt)
+      } catch {
+        case _: UserInterruptException => "" // do nothing, that's fine
+      }
 
       // Line is null on CTRL-D...
       if (line == null) {
@@ -263,7 +268,8 @@ abstract class ShellBase(val name: String) {
     println("Exiting...")
   }
 
-  private def runKillableCommand(line: String): Boolean = {
+  // VisibleForTesting
+  private[shellbase] def runKillableCommand(line: String): Boolean = {
     val commandRunner = new KillableSingleThread(runCommand(line))
 
     // Wait a bit for completion, so quick commands don't need to go through the keyMonitor.

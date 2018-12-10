@@ -19,18 +19,21 @@
 package com.sumologic.shellbase
 
 import java.util
+import java.util.concurrent.Semaphore
 
 import com.sumologic.shellbase.notifications.{InMemoryShellNotificationManager, ShellNotification, ShellNotificationManager}
 import jline.console.completer.CandidateListCompletionHandler
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
+import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
+import sun.misc.Signal
 import org.mockito.Mockito._
 
 import scala.collection.JavaConverters._
 
 @RunWith(classOf[JUnitRunner])
-class ShellBaseTest extends CommonWordSpec {
+class ShellBaseTest extends CommonWordSpec with Eventually {
 
   "ShellBase.main" should {
     "call init method and bubble exceptions" in {
@@ -232,6 +235,30 @@ class ShellBaseTest extends CommonWordSpec {
     }
   }
 
+  "ShellBase thread-handling" should {
+    "interrupt a long running command when Ctrl-C is pressed" in {
+      // given
+      val cmd = new LongRunningCommand("sleepysleep", durationInMillis = 100000L)
+      val sut = setUpShellBase(List(cmd))
+      val sutThread = new Thread {
+          override def run(): Unit = {
+            sut.runKillableCommand("sleepysleep")
+          }
+      }
+      sutThread.start()
+
+      // when
+      cmd.started.acquire()
+      Thread.sleep(500L) // that's longer than the 200ms initial quick-command period defined in runKillableCommand()
+      Signal.raise(new Signal("INT"))
+
+      // test
+      eventually { sutThread.isAlive should be (false) }
+      sut.interruptKeyMonitor.isMonitoring should be (false)
+      cmd.completedSuccessfully should be (false)
+    }
+  }
+
   "ShellBase auto-completion" should {
 
     def complete(input: String, cursor: Int): (Int, List[String]) = {
@@ -366,5 +393,20 @@ class DummyFailingCommand(name: String, aliases: List[String] = List()) extends 
   override def execute(cmdLine: CommandLine) = {
     super.execute(cmdLine)
     false
+  }
+}
+
+class LongRunningCommand(name: String, durationInMillis: Long, aliases: List[String] = List())
+  extends ShellCommand(name, "dummy", aliases) {
+
+  var completedSuccessfully = false
+  val started = new Semaphore(1)
+  started.acquire()
+
+  def execute(cmdLine: CommandLine) = {
+    started.release()
+    Thread.sleep(durationInMillis)
+    completedSuccessfully = true
+    true
   }
 }

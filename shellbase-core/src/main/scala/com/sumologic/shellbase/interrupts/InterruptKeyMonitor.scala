@@ -41,11 +41,16 @@ class InterruptKeyMonitor {
   def stopMonitoring(): Unit = {
     interruptKeyHandler.clearCallbacks()
   }
+
+  def isMonitoring: Boolean = {
+    interruptKeyHandler.hasACallback()
+  }
 }
 
 object InterruptKeyMonitor {
 
   class InterruptKeyHandler extends SignalHandler {
+
     type CallbackFn = () => Unit
     private var callbackOpt: Option[CallbackFn] = None
     private var lastInterrupt = 0L
@@ -58,16 +63,20 @@ object InterruptKeyMonitor {
       callbackOpt = None
     }
 
+    def hasACallback(): Boolean = callbackOpt.isDefined
+
     def now = System.currentTimeMillis()
 
     override def handle(sig: Signal) {
-      if (now - lastInterrupt < 1000) {
-        println("Killing the shell...")
-        System.exit(1)
-      } else {
-        println("\nPress Ctrl-C again to exit.")
-        lastInterrupt = now
-        callbackOpt.foreach(_.apply())
+      if (callbackOpt.isDefined) {
+        if (now - lastInterrupt < 1000) {
+          println("Killing the shell...")
+          System.exit(1)
+        } else {
+          println("\nPress Ctrl-C again to exit.")
+          lastInterrupt = now
+          callbackOpt.foreach(_.apply())
+        }
       }
     }
   }
