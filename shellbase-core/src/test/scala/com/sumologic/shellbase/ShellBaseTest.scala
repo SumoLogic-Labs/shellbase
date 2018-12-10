@@ -22,11 +22,13 @@ import java.util
 import java.util.concurrent.Semaphore
 
 import com.sumologic.shellbase.notifications.{InMemoryShellNotificationManager, ShellNotification, ShellNotificationManager}
+import jline.console.completer.CandidateListCompletionHandler
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import sun.misc.Signal
+import org.mockito.Mockito._
 
 import scala.collection.JavaConverters._
 
@@ -43,6 +45,44 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
           }
         }.main(Array.empty)
       }
+    }
+
+    "exit after executing all the command line arguments" in {
+      // given
+      var exitCode: Int = -1
+      class ShellOneCanExit extends ShellBase("test") {
+        override def commands: Seq[ShellCommand] = Seq(new DummyCommand("callme"))
+
+        override def exitShell(exitValue: Int): Unit = {
+          exitCode = exitValue
+        }
+      }
+      val sut = spy(new ShellOneCanExit)
+
+      // when
+      sut.main(Seq("callme").toArray)
+
+      // then
+      exitCode should be(0)
+    }
+
+    "exit with non-zero exit code after executing a command line argument command fails" in {
+      // given
+      var exitCode: Int = -1
+      class ShellOneCanExit extends ShellBase("test") {
+        override def commands: Seq[ShellCommand] = Seq(new DummyFailingCommand("callme"))
+
+        override def exitShell(exitValue: Int): Unit = {
+          exitCode = exitValue
+        }
+      }
+      val sut = spy(new ShellOneCanExit)
+
+      // when
+      sut.main(Seq("callme").toArray)
+
+      // then
+      exitCode should be(1)
     }
   }
 
@@ -225,9 +265,16 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       val shell = new AutoCompleteTestShell
       shell.initializeCommands()
       val completer = shell.rootSet.argCompleter
-      val candidates = new util.LinkedList[CharSequence]()
-      val startPos = completer.complete(input, cursor, candidates)
-      startPos -> candidates.asScala.map(_.toString).toList
+      val candidatesPlaceholder = new util.LinkedList[CharSequence]()
+      val startPos = completer.complete(input, cursor, candidatesPlaceholder)
+      val candidates = candidatesPlaceholder.asScala
+
+      // adapted/copied logic from CandidateListCompletionHandler for full completion
+      if (candidatesPlaceholder.size == 1 && cursor == input.length && !candidates.head.toString.endsWith(" ")) {
+        startPos -> List(candidates.head.toString + " ")
+      } else {
+        startPos -> candidates.map(_.toString).toList
+      }
     }
 
     class AutoCompleteTestShell extends ShellBase("AutoCompleteTestShell") {
@@ -267,9 +314,12 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
     }
 
     "append a space when the choice is unambiguous" in {
-      complete("ban yell", 8) should equal(4 -> List("yellow"))
-      complete("ban yellow", 10) should equal(4 -> List("yellow"))
-      complete("pom", 3) should equal(0 -> List("pom"))
+      complete("ban yell", 8) should equal(4 -> List("yellow "))
+      complete("ban yellow", 10) should equal(4 -> List("yellow "))
+      complete("pom", 3) should equal(0 -> List("pom "))
+    }
+
+    "not append a space when the choice is unambiguous, but the cursor wasn't at the end" in {
       complete("persimmons", 3) should equal(0 -> List("persimmons"))
     }
 
@@ -286,10 +336,10 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
     "account for extra whitespaces" in {
       complete("   app", 6) should equal(3 -> List("app", "apples"))
-      complete("   bananas", 10) should equal(3 -> List("bananas"))
+      complete("   bananas", 10) should equal(3 -> List("bananas "))
       complete("   bananas ", 11) should equal(11 -> List("?", "help", "yellow"))
       complete("   bananas  ", 12) should equal(12 -> List("?", "help", "yellow"))
-      complete("   ban    yellow  banners", 25) should equal(18 -> List("banners"))
+      complete("   ban    yellow  banners", 25) should equal(18 -> List("banners "))
     }
   }
 
