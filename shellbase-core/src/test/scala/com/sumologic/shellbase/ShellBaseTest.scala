@@ -25,6 +25,7 @@ import jline.console.completer.CandidateListCompletionHandler
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
+import org.mockito.Mockito._
 
 import scala.collection.JavaConverters._
 
@@ -41,6 +42,44 @@ class ShellBaseTest extends CommonWordSpec {
           }
         }.main(Array.empty)
       }
+    }
+
+    "exit after executing all the command line arguments" in {
+      // given
+      var exitCode: Int = -1
+      class ShellOneCanExit extends ShellBase("test") {
+        override def commands: Seq[ShellCommand] = Seq(new DummyCommand("callme"))
+
+        override def exitShell(exitValue: Int): Unit = {
+          exitCode = exitValue
+        }
+      }
+      val sut = spy(new ShellOneCanExit)
+
+      // when
+      sut.main(Seq("callme").toArray)
+
+      // then
+      exitCode should be(0)
+    }
+
+    "exit with non-zero exit code after executing a command line argument command fails" in {
+      // given
+      var exitCode: Int = -1
+      class ShellOneCanExit extends ShellBase("test") {
+        override def commands: Seq[ShellCommand] = Seq(new DummyFailingCommand("callme"))
+
+        override def exitShell(exitValue: Int): Unit = {
+          exitCode = exitValue
+        }
+      }
+      val sut = spy(new ShellOneCanExit)
+
+      // when
+      sut.main(Seq("callme").toArray)
+
+      // then
+      exitCode should be(1)
     }
   }
 
