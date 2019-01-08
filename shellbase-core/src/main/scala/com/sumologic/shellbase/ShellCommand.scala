@@ -38,6 +38,9 @@ abstract class ShellCommand(val name: String,
                             val hiddenInHelp: Boolean = false)
                            (implicit e: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global) {
 
+  protected val validSeparator = '-'
+  protected val discreditedSeparator = '_'
+
   protected val _logger = LoggerFactory.getLogger(getClass)
   protected lazy val prompter = new ShellPrompter()
 
@@ -185,7 +188,7 @@ abstract class ShellCommand(val name: String,
       }
     }
 
-    val txt = s"$name ${arguments.mkString(" ")}"
+    val txt = s"$sanitizedName ${arguments.mkString(" ")}"
 
     new HelpFormatter().printHelp(HelpFormatter.DEFAULT_WIDTH, txt, helpText, options,
       null, // footer
@@ -195,8 +198,27 @@ abstract class ShellCommand(val name: String,
       //  usage: sleep period [-v]
   }
 
+  private def sanitizedName(input: String): String = input.replace(discreditedSeparator,
+                                                                   validSeparator)
+
+  def sanitizedName(): String = sanitizedName(name)
+
+  private def nameVersions(inputName: String) = {
+    val separators = Set(discreditedSeparator, validSeparator)
+    List(
+      inputName,
+      inputName.filterNot(separators),
+      inputName.replace(discreditedSeparator, validSeparator),
+      inputName.replace(validSeparator, discreditedSeparator)
+    ).distinct
+  }
+
+  def nameVersions(): List[String] = (List(name) ++ aliases).flatMap(nameVersions).distinct
+
+  def isOneOfName(command: String): Boolean = nameVersions.contains(command)
+
   final def completer = {
-    val variants = List(name) ++ aliases
+    val variants = List(sanitizedName) ++ aliases.map(sanitizedName)
     new NestedCompleter(new StringsCompleter(variants), argCompleter)
   }
 }

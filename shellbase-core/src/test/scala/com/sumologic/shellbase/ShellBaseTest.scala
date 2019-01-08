@@ -121,10 +121,28 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       "a nested ShellCommandSet has duplicate commands" in {
         the[DuplicateCommandException] thrownBy {
           val commandSet = new ShellCommandSet("yoyo", "") {
-            commands += new DummyCommand("one", List("doop"))
-            commands += new DummyCommand("doop")
+            commands += new DummyCommand("one", List("foo-bar"))
+            commands += new DummyCommand("foo_bar")
           }
           runValidation(List(commandSet))
+        }
+      }
+
+      "two commands have identical sanitized names" in {
+        the[DuplicateCommandException] thrownBy {
+          runValidation(List(new DummyCommand("foo-bar"), new DummyCommand("foo_bar")))
+        }
+      }
+
+      "two commands have identical sanitized aliases" in {
+        the[DuplicateCommandException] thrownBy {
+          runValidation(List(new DummyCommand("one", List("foo-bar")), new DummyCommand("two", List("foo_bar"))))
+        }
+      }
+
+      "the sanitized name of one command matches the alias of another" in {
+        the[DuplicateCommandException] thrownBy {
+          runValidation(List(new DummyCommand("one", List("foobar")), new DummyCommand("foo-bar")))
         }
       }
     }
@@ -132,7 +150,6 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
   "ShellCommandAlias" should {
     "allow another command to be executed" in {
-
       val original = new DummyCommand("original")
       val alias = new ShellCommandAlias(original, "alias1", List("alias2"))
 
@@ -148,6 +165,42 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       thisShouldRunIt("original")
       thisShouldRunIt("alias1")
       thisShouldRunIt("alias2")
+    }
+
+    "allow another command with different separator to be executed" in {
+      val original = new DummyCommand("original")
+      val alias = new ShellCommandAlias(original, "dummy-alias", List("another_alias"))
+
+      val sut = setUpShellBase(List(original, alias))
+
+      def thisShouldRunIt(line: String) {
+        original.executed = false
+        sut.runCommand(line)
+        original.executed should be(true)
+        original.executed = false
+      }
+
+      thisShouldRunIt("original")
+      thisShouldRunIt("dummy_alias")
+      thisShouldRunIt("another-alias")
+    }
+
+    "allow another command with reduced separator to be executed" in {
+      val original = new DummyCommand("original")
+      val alias = new ShellCommandAlias(original, "dummy-alias", List("another_alias"))
+
+      val sut = setUpShellBase(List(original, alias))
+
+      def thisShouldRunIt(line: String) {
+        original.executed = false
+        sut.runCommand(line)
+        original.executed should be(true)
+        original.executed = false
+      }
+
+      thisShouldRunIt("original")
+      thisShouldRunIt("dummyalias")
+      thisShouldRunIt("anotheralias")
     }
   }
 
@@ -287,6 +340,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
         commands += new ShellCommandSet("yellow", "") {
           commands += new DummyCommand("banners", List("ban"))
           commands += new DummyCommand("boxes", List())
+          commands += new DummyCommand("eat_all", List())
         }
       }
 
@@ -316,6 +370,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
     "append a space when the choice is unambiguous" in {
       complete("ban yell", 8) should equal(4 -> List("yellow "))
       complete("ban yellow", 10) should equal(4 -> List("yellow "))
+      complete("ban yellow ea", 13) should equal(11 -> List("eat-all "))
       complete("pom", 3) should equal(0 -> List("pom "))
     }
 
@@ -325,7 +380,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
     "suggest candidate next tokens after the current one" in {
       complete("ban ", 4) should equal(4 -> List("?", "help", "yellow"))
-      complete("ban yellow ", 11) should equal(11 -> List("?", "help", "ban", "banners", "boxes"))
+      complete("ban yellow ", 11) should equal(11 -> List("?", "help", "ban", "banners", "boxes", "eat-all"))
     }
 
     "complete properly when there are more characters after the one being completed" in {
