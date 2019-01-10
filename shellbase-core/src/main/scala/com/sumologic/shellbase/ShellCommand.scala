@@ -188,7 +188,7 @@ abstract class ShellCommand(val name: String,
       }
     }
 
-    val txt = s"$sanitizedName ${arguments.mkString(" ")}"
+    val txt = s"$name ${arguments.mkString(" ")}"
 
     new HelpFormatter().printHelp(HelpFormatter.DEFAULT_WIDTH, txt, helpText, options,
       null, // footer
@@ -198,27 +198,9 @@ abstract class ShellCommand(val name: String,
       //  usage: sleep period [-v]
   }
 
-  private def sanitizedName(input: String): String = input.replace(discreditedSeparator,
-                                                                   validSeparator)
-
-  def sanitizedName(): String = sanitizedName(name)
-
-  private def nameVersions(inputName: String) = {
-    val separators = Set(discreditedSeparator, validSeparator)
-    List(
-      inputName,
-      inputName.filterNot(separators),
-      inputName.replace(discreditedSeparator, validSeparator),
-      inputName.replace(validSeparator, discreditedSeparator)
-    ).distinct
-  }
-
-  def nameVersions(): List[String] = (List(name) ++ aliases).flatMap(nameVersions).distinct
-
-  def isOneOfName(command: String): Boolean = nameVersions.contains(command)
+  def basicVariants: List[String] = List(name) ++ aliases
 
   final def completer = {
-    val variants = List(sanitizedName) ++ aliases.map(sanitizedName)
-    new NestedCompleter(new StringsCompleter(variants), argCompleter)
+    new NestedCompleter(new StringsCompleter(basicVariants), argCompleter)
   }
 }

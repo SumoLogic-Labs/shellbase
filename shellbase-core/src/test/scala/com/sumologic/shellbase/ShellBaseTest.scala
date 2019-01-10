@@ -145,6 +145,16 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
           runValidation(List(new DummyCommand("one", List("foobar")), new DummyCommand("foo-bar")))
         }
       }
+
+      "name which does not match the convention" in {
+        the[InvalidCommandNameException] thrownBy {
+          runNameConventionValidation(List(new DummyCommand("foo_bar")))
+        }
+      }
+
+      "name which match the convention" in {
+        runNameConventionValidation(List(new DummyCommand("foo-bar")))
+      }
     }
   }
 
@@ -340,7 +350,6 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
         commands += new ShellCommandSet("yellow", "") {
           commands += new DummyCommand("banners", List("ban"))
           commands += new DummyCommand("boxes", List())
-          commands += new DummyCommand("eat_all", List())
         }
       }
 
@@ -370,7 +379,6 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
     "append a space when the choice is unambiguous" in {
       complete("ban yell", 8) should equal(4 -> List("yellow "))
       complete("ban yellow", 10) should equal(4 -> List("yellow "))
-      complete("ban yellow ea", 13) should equal(11 -> List("eat-all "))
       complete("pom", 3) should equal(0 -> List("pom "))
     }
 
@@ -380,7 +388,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
     "suggest candidate next tokens after the current one" in {
       complete("ban ", 4) should equal(4 -> List("?", "help", "yellow"))
-      complete("ban yellow ", 11) should equal(11 -> List("?", "help", "ban", "banners", "boxes", "eat-all"))
+      complete("ban yellow ", 11) should equal(11 -> List("?", "help", "ban", "banners", "boxes"))
     }
 
     "complete properly when there are more characters after the one being completed" in {
@@ -399,7 +407,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
   }
 
   private var _verboseMode = false
-  def setUpShellBase(commandList: Seq[ShellCommand]): ShellBase = {
+  def setUpShellBase(commandList: Seq[ShellCommand], enforceNaming: Boolean = false): ShellBase = {
     _verboseMode = false
 
     val res = new ShellBase("test") {
@@ -409,6 +417,8 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       override def commands = commandList
 
       override def verboseMode = _verboseMode
+
+      override def enforceNamingConventions = enforceNaming
     }
     res.initializeCommands()
     res
@@ -430,6 +440,10 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
   def runValidation(commandList: Seq[ShellCommand]) {
     setUpShellBase(commandList).validateCommands()
+  }
+
+  def runNameConventionValidation(commandList: Seq[ShellCommand]) {
+    setUpShellBase(commandList, true).validateCommands()
   }
 }
 

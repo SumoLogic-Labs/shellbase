@@ -31,6 +31,7 @@ object ShellCommandSet {
 }
 
 class DuplicateCommandException(message: String) extends RuntimeException(message)
+class InvalidCommandNameException(message: String) extends RuntimeException(message)
 
 /**
   * A group of shell commands.
@@ -122,7 +123,7 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
 
     def checkShellCommand(command: ShellCommand) {
       val className = command.getClass.getName
-      command.nameVersions.foreach(checkCommandName(_, className))
+      commandVariants(command).foreach(checkCommandName(_, className))
       command match {
         case set: ShellCommandSet => set.validateCommands()
         case _ =>
@@ -132,14 +133,35 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
     commands.foreach(checkShellCommand)
   }
 
+  def namingConvention(): CommandNamingConvention = new SeparatorNamingConvention('-', List('_'))
+
+  def validateCommandNames(): Unit = {
+    def checkNameConvention(name: String) {
+      if (!namingConvention.validateName(name)) {
+        throw new InvalidCommandNameException(s"Name $name does not match the convention")
+      }
+    }
+    commands.foreach(command => {
+      checkNameConvention(command.name)
+      command match {
+        case set: ShellCommandSet => set.validateCommandNames()
+        case _ =>
+      }
+    })
+  }
+
   final def execute(cmdLine: CommandLine) =
     throw new IllegalAccessException("Call the other signature!")
 
   override def argCompleter = new AggregateCompleter(commands.map(_.completer))
 
-  def findCommand(command: String) = {
-    val normalizedCommand = command.toLowerCase.trim
-    commands.find(_.isOneOfName(normalizedCommand))
+  def commandVariants(command: ShellCommand): List[String] = {
+    command.basicVariants.flatMap(namingConvention.nameVersions(_)).distinct
+  }
+
+  def findCommand(input: String) = {
+    val normalizedCommand = input.toLowerCase.trim
+    commands.find(command => commandVariants(command).contains(normalizedCommand))
   }
 
   protected def printHelp(args: List[String], showAllCommands: Boolean): Boolean = {
@@ -152,8 +174,8 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
           somethingWasHidden = filteredCommands.exists(_.hiddenInHelp)
           filteredCommands = filteredCommands.filterNot(_.hiddenInHelp)
         }
-        filteredCommands.sortBy(_.sanitizedName).foreach(cmd => {
-          printf("  %-15s %s%n", cmd.sanitizedName, cmd.helpText)
+        filteredCommands.sortBy(_.name).foreach(cmd => {
+          printf("  %-15s %s%n", cmd.name, cmd.helpText)
         })
         if (somethingWasHidden) {
           println(s"Some commands were hidden. Use [-${ShowAllCommands.shortName}] flag to show them.")
