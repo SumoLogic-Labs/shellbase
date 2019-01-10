@@ -133,7 +133,7 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
     commands.foreach(checkShellCommand)
   }
 
-  def namingConvention(): CommandNamingConvention = new SeparatorNamingConvention('-', List('_'))
+  def namingConvention(): CommandNamingConvention = new SeparatorNamingConvention("-", List("_", ""))
 
   def validateCommandNames(): Unit = {
     def checkNameConvention(name: String) {

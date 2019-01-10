@@ -20,34 +20,34 @@ package com.sumologic.shellbase
 
 
 trait CommandNamingConvention {
-  def nameVersions(inputName: String): Iterable[String]
+  def nameVersions(input: String): Iterable[String]
   def sanitizedName(input: String): String
   def validateName(input: String): Boolean
 }
 
-class EmptyCommandNamingConvention() {
-  def nameVersions(inputName: String): Iterable[String] = List(inputName)
+class SimpleCommandNamingConvention() {
+  def nameVersions(input: String): Iterable[String] = List(input)
   def sanitizedName(input: String): String = input
   def validateName(input: String): Boolean = true
 }
 
-class SeparatorNamingConvention(validSeparator: Char, disapprovedSeparators: List[Char])
+class SeparatorNamingConvention(canonicalSeparator: String, noncanonicalSeparators: List[String])
   extends CommandNamingConvention {
 
-  def nameVersions(inputName: String): Iterable[String] = {
-    val separators = (disapprovedSeparators :+ validSeparator).toSet
-    val separatorPairs = separators.flatMap(
-      x => separators.flatMap(y => if (x != y) Some(x, y) else None))
-    val replacedPairs = separatorPairs.map(x => inputName.replace(x._1, x._2))
-    (replacedPairs.toList ::: List(inputName, inputName.filterNot(separators))).distinct
+  def nameVersions(input: String): Iterable[String] = {
+    def getNoncanonicalVersion(separator: String) = sanitizedName(input).replace(canonicalSeparator, separator)
+    val noncanonicalVersions = noncanonicalSeparators.map(getNoncanonicalVersion)
+    (noncanonicalVersions :+ input :+ sanitizedName(input)).distinct
   }
 
+  def nonemptyNoncanonicalSeparators() = noncanonicalSeparators.filter(_ != "")
+
   def sanitizedName(input: String): String = {
-    input.map(c => if (disapprovedSeparators.contains(c)) validSeparator else c)
+    val separator = nonemptyNoncanonicalSeparators.find(s => input.contains(s))
+    separator.map(s => input.replace(s, canonicalSeparator)).getOrElse(input)
   }
 
   def validateName(input: String): Boolean = {
-    def checkChar(char: Char): Boolean = input.contains(char)
-    !disapprovedSeparators.map(checkChar).reduce(_ || _)
+    !nonemptyNoncanonicalSeparators.map(input.contains).reduce(_ || _)
   }
 }

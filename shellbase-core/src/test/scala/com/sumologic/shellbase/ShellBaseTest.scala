@@ -121,6 +121,16 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       "a nested ShellCommandSet has duplicate commands" in {
         the[DuplicateCommandException] thrownBy {
           val commandSet = new ShellCommandSet("yoyo", "") {
+            commands += new DummyCommand("one", List("doop"))
+            commands += new DummyCommand("doop")
+          }
+          runValidation(List(commandSet))
+        }
+      }
+
+      "a nested ShellCommandSet has duplicate acceptable version of commands" in {
+        the[DuplicateCommandException] thrownBy {
+          val commandSet = new ShellCommandSet("yoyo", "") {
             commands += new DummyCommand("one", List("foo-bar"))
             commands += new DummyCommand("foo_bar")
           }
@@ -191,8 +201,10 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       }
 
       thisShouldRunIt("original")
+      thisShouldRunIt("dummy-alias")
       thisShouldRunIt("dummy_alias")
       thisShouldRunIt("another-alias")
+      thisShouldRunIt("another_alias")
     }
 
     "allow another command with reduced separator to be executed" in {

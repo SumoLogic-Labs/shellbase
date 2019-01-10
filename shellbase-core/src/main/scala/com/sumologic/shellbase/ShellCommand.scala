@@ -38,9 +38,6 @@ abstract class ShellCommand(val name: String,
                             val hiddenInHelp: Boolean = false)
                            (implicit e: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global) {
 
-  protected val validSeparator = '-'
-  protected val discreditedSeparator = '_'
-
   protected val _logger = LoggerFactory.getLogger(getClass)
   protected lazy val prompter = new ShellPrompter()
 
