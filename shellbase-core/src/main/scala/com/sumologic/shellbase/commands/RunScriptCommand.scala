@@ -28,7 +28,7 @@ import org.apache.commons.cli.{CommandLine, Options}
 import scala.collection.JavaConversions._
 
 class RunScriptCommand(scriptDirs: List[File], scriptExtension: String, runCommand: String => Boolean,
-                       parseLine: String => List[String] = ShellBase.parseLine) extends ShellCommand("run_script",
+                       parseLine: String => List[String] = ShellBase.parseLine) extends ShellCommand("run-script",
   "Run the script from the specified file.", List("script")) {
 
   override def maxNumberOfArguments: Int = -1

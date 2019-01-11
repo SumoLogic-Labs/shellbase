@@ -195,8 +195,9 @@ abstract class ShellCommand(val name: String,
       //  usage: sleep period [-v]
   }
 
+  def basicVariants: List[String] = List(name) ++ aliases
+
   final def completer = {
-    val variants = List(name) ++ aliases
-    new NestedCompleter(new StringsCompleter(variants), argCompleter)
+    new NestedCompleter(new StringsCompleter(basicVariants), argCompleter)
   }
 }

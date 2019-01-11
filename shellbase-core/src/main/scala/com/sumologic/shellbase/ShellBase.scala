@@ -37,7 +37,8 @@ import scala.util.Success
 /**
   * A shell base that can be used to build shell like applications.
   */
-abstract class ShellBase(val name: String) {
+abstract class ShellBase(val name: String)
+{
 
   // -----------------------------------------------------------------------------------------------
   // Abstract methods to implement.
@@ -240,6 +241,9 @@ abstract class ShellBase(val name: String) {
 
   def validateCommands() = {
     rootSet.validateCommands()
+    if (enforceNamingConventions) {
+      rootSet.validateCommandNames()
+    }
   }
 
   private def interactiveMainLoop() {
@@ -398,6 +402,8 @@ abstract class ShellBase(val name: String) {
     // NOTE(chris, 2014-02-05): This has to be near the end for overrides to work
     override val hiddenInHelp = hideBuiltInCommandsFromHelp(name)
   }
+
+  def enforceNamingConventions: Boolean = false
 }
 
 object ShellBase {

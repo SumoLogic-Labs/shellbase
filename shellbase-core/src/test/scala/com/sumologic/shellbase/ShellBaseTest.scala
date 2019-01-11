@@ -127,12 +127,49 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
           runValidation(List(commandSet))
         }
       }
+
+      "a nested ShellCommandSet has duplicate acceptable version of commands" in {
+        the[DuplicateCommandException] thrownBy {
+          val commandSet = new ShellCommandSet("yoyo", "") {
+            commands += new DummyCommand("one", List("foo-bar"))
+            commands += new DummyCommand("foo_bar")
+          }
+          runValidation(List(commandSet))
+        }
+      }
+
+      "two commands have identical sanitized names" in {
+        the[DuplicateCommandException] thrownBy {
+          runValidation(List(new DummyCommand("foo-bar"), new DummyCommand("foo_bar")))
+        }
+      }
+
+      "two commands have identical sanitized aliases" in {
+        the[DuplicateCommandException] thrownBy {
+          runValidation(List(new DummyCommand("one", List("foo-bar")), new DummyCommand("two", List("foo_bar"))))
+        }
+      }
+
+      "the sanitized name of one command matches the alias of another" in {
+        the[DuplicateCommandException] thrownBy {
+          runValidation(List(new DummyCommand("one", List("foobar")), new DummyCommand("foo-bar")))
+        }
+      }
+
+      "name which does not match the convention" in {
+        the[InvalidCommandNameException] thrownBy {
+          runNameConventionValidation(List(new DummyCommand("foo_bar")))
+        }
+      }
+
+      "name which match the convention" in {
+        runNameConventionValidation(List(new DummyCommand("foo-bar")))
+      }
     }
   }
 
   "ShellCommandAlias" should {
     "allow another command to be executed" in {
-
       val original = new DummyCommand("original")
       val alias = new ShellCommandAlias(original, "alias1", List("alias2"))
 
@@ -148,6 +185,44 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       thisShouldRunIt("original")
       thisShouldRunIt("alias1")
       thisShouldRunIt("alias2")
+    }
+
+    "allow another command with different separator to be executed" in {
+      val original = new DummyCommand("original")
+      val alias = new ShellCommandAlias(original, "dummy-alias", List("another_alias"))
+
+      val sut = setUpShellBase(List(original, alias))
+
+      def thisShouldRunIt(line: String) {
+        original.executed = false
+        sut.runCommand(line)
+        original.executed should be(true)
+        original.executed = false
+      }
+
+      thisShouldRunIt("original")
+      thisShouldRunIt("dummy-alias")
+      thisShouldRunIt("dummy_alias")
+      thisShouldRunIt("another-alias")
+      thisShouldRunIt("another_alias")
+    }
+
+    "allow another command with reduced separator to be executed" in {
+      val original = new DummyCommand("original")
+      val alias = new ShellCommandAlias(original, "dummy-alias", List("another_alias"))
+
+      val sut = setUpShellBase(List(original, alias))
+
+      def thisShouldRunIt(line: String) {
+        original.executed = false
+        sut.runCommand(line)
+        original.executed should be(true)
+        original.executed = false
+      }
+
+      thisShouldRunIt("original")
+      thisShouldRunIt("dummyalias")
+      thisShouldRunIt("anotheralias")
     }
   }
 
@@ -344,7 +419,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
   }
 
   private var _verboseMode = false
-  def setUpShellBase(commandList: Seq[ShellCommand]): ShellBase = {
+  def setUpShellBase(commandList: Seq[ShellCommand], enforceNaming: Boolean = false): ShellBase = {
     _verboseMode = false
 
     val res = new ShellBase("test") {
@@ -354,6 +429,8 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       override def commands = commandList
 
       override def verboseMode = _verboseMode
+
+      override def enforceNamingConventions = enforceNaming
     }
     res.initializeCommands()
     res
@@ -375,6 +452,10 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
   def runValidation(commandList: Seq[ShellCommand]) {
     setUpShellBase(commandList).validateCommands()
+  }
+
+  def runNameConventionValidation(commandList: Seq[ShellCommand]) {
+    setUpShellBase(commandList, true).validateCommands()
   }
 }
 
