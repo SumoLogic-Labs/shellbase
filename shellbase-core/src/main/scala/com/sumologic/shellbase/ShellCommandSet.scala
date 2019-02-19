@@ -166,13 +166,13 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
         findCommand(command) match {
           case Some(shellCommandSet: ShellCommandSet) => shellCommandSet.printHelp(rest, showAllCommands)
           case Some(shellCommand) if rest.nonEmpty =>
-            printf("Command '%s' doesn't have subcommands", command)
+            println("Command '%s' doesn't have subcommands", command)
             false
           case Some(shellCommand) =>
             shellCommand.help
             true
           case None =>
-            printf("Command '%s' unknown.", command)
+            println("Command '%s' unknown.", command)
             false
         }
     }
