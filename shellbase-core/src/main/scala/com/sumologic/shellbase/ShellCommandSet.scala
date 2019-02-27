@@ -166,13 +166,13 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
         findCommand(command) match {
           case Some(shellCommandSet: ShellCommandSet) => shellCommandSet.printHelp(rest, showAllCommands)
           case Some(shellCommand) if rest.nonEmpty =>
-            println("Command '%s' doesn't have subcommands", command)
+            println(s"Command '$command' doesn't have subcommands")
             false
           case Some(shellCommand) =>
             shellCommand.help
             true
           case None =>
-            println("Command '%s' unknown.", command)
+            println(s"Command '$command' unknown.")
             false
         }
     }
