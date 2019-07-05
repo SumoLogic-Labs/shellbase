@@ -27,7 +27,6 @@
   <properties>
     <scala.version.major>2.11</scala.version.major>
     <scala.version>${scala.version.major}.12</scala.version>
-    <akka.version>2.3.11</akka.version>
   </properties>
   <dependencies>
     <dependency>
