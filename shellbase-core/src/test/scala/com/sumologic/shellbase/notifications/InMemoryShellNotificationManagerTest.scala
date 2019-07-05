@@ -22,8 +22,8 @@ import com.sumologic.shellbase.CommonWordSpec
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.junit.JUnitRunner
+import org.scalatestplus.mockito.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
 class InMemoryShellNotificationManagerTest extends CommonWordSpec with BeforeAndAfterEach with MockitoSugar {

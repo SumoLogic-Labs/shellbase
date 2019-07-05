@@ -24,7 +24,7 @@ import com.sumologic.shellbase.ShellCommand
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => matcher_eq, _}
 import org.scalatest.mock.MockitoSugar

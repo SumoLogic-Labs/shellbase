@@ -22,11 +22,10 @@ import java.util
 import java.util.concurrent.Semaphore
 
 import com.sumologic.shellbase.notifications.{InMemoryShellNotificationManager, ShellNotification, ShellNotificationManager}
-import jline.console.completer.CandidateListCompletionHandler
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
 import org.scalatest.concurrent.Eventually
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import sun.misc.Signal
 import org.mockito.Mockito._
 

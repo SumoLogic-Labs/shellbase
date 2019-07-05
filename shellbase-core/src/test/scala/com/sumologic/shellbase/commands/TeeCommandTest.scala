@@ -23,7 +23,7 @@ import java.nio.file.{Files, Path}
 
 import com.sumologic.shellbase.CommonWordSpec
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.collection.JavaConverters._
 import scala.util.Random

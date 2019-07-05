@@ -20,7 +20,7 @@ package com.sumologic.shellbase.cmdline
 
 import com.sumologic.shellbase.{CommonWordSpec, ExitShellCommandException}
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class RichScalaOptionTest extends CommonWordSpec {

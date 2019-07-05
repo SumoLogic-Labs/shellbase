@@ -20,7 +20,7 @@ package com.sumologic.shellbase.interrupts
 
 import com.sumologic.shellbase.CommonWordSpec
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
