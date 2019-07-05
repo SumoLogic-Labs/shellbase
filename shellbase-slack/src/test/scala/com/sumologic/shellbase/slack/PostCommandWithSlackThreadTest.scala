@@ -24,12 +24,12 @@ import com.flyberrycapital.slack.Responses.PostMessageResponse
 import com.flyberrycapital.slack.SlackClient
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
-import org.mockito.Matchers.{any, anyObject, anyString}
+import org.mockito.ArgumentMatchers.{any, anyObject, anyString}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.junit.JUnitRunner
 import org.scalatest.mock.MockitoSugar
-import org.mockito.Matchers.{eq => matcher_eq, _}
+import org.mockito.ArgumentMatchers.{eq => matcher_eq, _}
 
 @RunWith(classOf[JUnitRunner])
 class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterEach with MockitoSugar {

@@ -24,7 +24,7 @@ import java.util.Date
 
 import jline.console.ConsoleReader
 import org.junit.runner.RunWith
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.{eq => matcheq, _}
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.junit.JUnitRunner
@@ -291,6 +291,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
 
   private def answerQuestionWith(str1: String, str: String*): Unit = {
     when(mockReader.readLine(anyString, anyChar)).thenReturn(str1, str: _*)
+    when(mockReader.readLine(anyString, matcheq(null))).thenReturn(str1, str: _*)
   }
 
   private def feedCharacters(string: String): Unit = {
