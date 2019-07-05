@@ -32,7 +32,7 @@
     <dependency>
       <groupId>com.flyberrycapital</groupId>
       <artifactId>scala-slack_${scala.version.major}</artifactId>
-      <version>0.2.0</version>
+      <version>0.3.1</version>
     </dependency>
 
     <!-- Test Dependencies. -->
