@@ -31,7 +31,7 @@
 
     <dependency>
       <groupId>com.flyberrycapital</groupId>
-      <artifactId>scala-slack_2.11</artifactId>
+      <artifactId>scala-slack_${scala.version.major}</artifactId>
       <version>0.2.0</version>
     </dependency>
 
