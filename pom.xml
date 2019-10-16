@@ -75,7 +75,6 @@
             <arg>-language:implicitConversions</arg>
             <arg>-unchecked</arg>
             <arg>-feature</arg>
-            <arg>-Ybackend:GenBCode</arg>
             <arg>-optimise</arg>
           </args>
           <jvmArgs>
