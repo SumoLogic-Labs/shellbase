@@ -40,7 +40,7 @@
       <groupId>org.scalatest</groupId>
       <artifactId>scalatest_${scala.version.major}</artifactId>
       <scope>test</scope>
-      <version>2.1.7</version>
+      <version>3.0.8</version>
     </dependency>
 
     <dependency>
