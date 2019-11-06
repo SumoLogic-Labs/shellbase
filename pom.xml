@@ -33,7 +33,7 @@
     <dependency>
       <groupId>org.scalatest</groupId>
       <artifactId>scalatest_${scala.version.major}</artifactId>
-      <version>2.2.6</version>
+      <version>3.0.8</version>
     </dependency>
   </dependencies>
   <build>
@@ -75,7 +75,6 @@
             <arg>-language:implicitConversions</arg>
             <arg>-unchecked</arg>
             <arg>-feature</arg>
-            <arg>-Ybackend:GenBCode</arg>
             <arg>-optimise</arg>
           </args>
           <jvmArgs>
