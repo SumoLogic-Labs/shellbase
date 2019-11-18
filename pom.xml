@@ -65,8 +65,8 @@
         </executions>
 
         <configuration>
-          <!-- Enable that when we will migrate to new Scala major version (e.g. 2.11) -->
-          <checkMultipleScalaVersions>false</checkMultipleScalaVersions>
+          <scalaVersion>${scala.version}</scalaVersion>
+          <checkMultipleScalaVersions>true</checkMultipleScalaVersions>
           <args>
             <arg>-target:jvm-1.6</arg>
             <arg>-dependencyfile</arg>
