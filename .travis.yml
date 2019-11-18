@@ -1,6 +1,9 @@
 language: java
 jdk:
   - openjdk8
-install: mvn install -DskipTests=true -Dgpg.skip=true
+before_install:
+  - cd scala-2-11
+install:
+  - mvn install -DskipTests=true -Dgpg.skip=true
 after_success:
   - bash <(curl -s https://codecov.io/bash)
