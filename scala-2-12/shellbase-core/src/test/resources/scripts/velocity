@@ -1,0 +1,3 @@
+do something ${key1}
+do something ${key2}
+exit
