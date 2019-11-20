@@ -19,3 +19,7 @@ project/plugins/project/
 *.iml
 *.ipr
 *.idea
+
+# Gradle specific
+.gradle
+**/build/
