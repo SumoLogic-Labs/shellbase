@@ -35,7 +35,8 @@ abstract class ShellCommand(val name: String,
                             val helpText: String,
                             val aliases: List[String] = List[String](),
                             val deprecated: Boolean = false,
-                            val hiddenInHelp: Boolean = false)
+                            val hiddenInHelp: Boolean = false,
+                            val usageText: Option[String] = None)
                            (implicit e: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global) {
 
   protected val _logger = LoggerFactory.getLogger(getClass)
@@ -187,7 +188,12 @@ abstract class ShellCommand(val name: String,
 
     val txt = s"$name ${arguments.mkString(" ")}"
 
-    new HelpFormatter().printHelp(HelpFormatter.DEFAULT_WIDTH, txt, helpText, options,
+    val fullHelpText: String = usageText match {
+      case Some(text) => helpText + "\n\n" + text
+      case _ => helpText
+    }
+
+    new HelpFormatter().printHelp(HelpFormatter.DEFAULT_WIDTH, txt, fullHelpText, options,
       null, // footer
       true) // print an automatically generated usage statement, instead of:
       //  usage: sleep period
