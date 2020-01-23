@@ -163,7 +163,11 @@ abstract class ShellBase(val name: String)
     Thread.currentThread.setName("Shell main")
     try {
       val result = actualMain(args)
-      exitShell(result)
+      if (result != 0) {
+        exitShell(result)
+      } else {
+        // let the program end naturally
+      }
     } finally {
       interruptKeyMonitor.shutdown()
     }
