@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.3] - 2020-01-24
+
+### Added
+- Support for `usageText` in commands
+
+### Changed
+- no `System.exit(0)` call the end of the program
+
 ## [1.5.2] - 2019-11-20
 
 ### Added
