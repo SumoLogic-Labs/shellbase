@@ -47,9 +47,9 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       }
     }
 
-    "should not exit after successfully executing all the command line arguments" in {
+    "exit after executing all the command line arguments" in {
       // given
-      var exitCode: Int = -100
+      var exitCode: Int = -1
       class ShellOneCanExit extends ShellBase("test") {
         override def commands: Seq[ShellCommand] = Seq(new DummyCommand("callme"))
 
@@ -63,7 +63,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       sut.main(Seq("callme").toArray)
 
       // then
-      exitCode should be(-100)
+      exitCode should be(0)
     }
 
     "exit with non-zero exit code after executing a command line argument command fails" in {
