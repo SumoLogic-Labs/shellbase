@@ -14,13 +14,13 @@ These are the components we provide:
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-core_2.11</artifactId>
-      <version>1.5.2</version>
+      <version>1.5.4</version>
     </dependency>
 
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-slack_2.11</artifactId>
-      <version>1.5.2</version>
+      <version>1.5.4</version>
     </dependency>
 ```
 
@@ -80,9 +80,9 @@ outside this list)
         signing.gnupg.passphrase=${password_for_imported_sumoapi_key}
         ```
 2. Remove `-SNAPSHOT` suffix from `version` in `build.gradle`
-3. Make a release branch with Scala version and project version, ex. `shellbase-1.5.3`:
+3. Make a release branch with Scala version and project version, ex. `shellbase-1.5.5`:
     ```
-    export RELEASE_VERSION=shellbase-1.5.3
+    export RELEASE_VERSION=shellbase-1.5.5
     git checkout -b ${RELEASE_VERSION}
     git add build.gradle
     git commit -m "[release] ${RELEASE_VERSION}"

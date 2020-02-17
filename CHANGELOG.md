@@ -4,6 +4,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.5.4] - 2020-02-17
+### Changed
+- Effectively reverting to 1.5.2
+
+## [1.5.3] - 2020-01-23
+BROKEN
+
+### Changed
+- no exit if the exit code is 0 (#46)
+
 ## [1.5.2] - 2019-11-20
 
 ### Added
