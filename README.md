@@ -61,7 +61,7 @@ outside this list)
 - `defaultScalaVersion` - default version of Scala used for building - can be overridden with `-PscalaVersion`
 
 ### [Dev] How to release new version
-1. Make sure you have all credentials - access to `Open Source` vault in 1Password.
+1. Make sure you have all credentials.
     1. Can login as `sumoapi` https://oss.sonatype.org/index.html
     2. Can import and verify the signing key:
         ```
@@ -102,33 +102,3 @@ in `build.gradle`, ex. `1.5.4-SNAPSHOT`
     git commit -m "[release] Updating version after release ${RELEASE_VERSION}"
     git push
     ```
-
-
-## [Dev] ~~Deprecated (Maven) version releasing~~
-
-1. Make sure you have all credentials.
-  * Can login as `sumoapi` https://oss.sonatype.org/index.html
-  * Have nexus credentials ~/.m2/settings.xml
-
-  ```
-  <server>
-    <username>sumoapi</username>
-    <password>****</password>
-    <id>sonatype-nexus-staging</id>
-  </server>
-  ```
-  * Signing key:
-
-  ```
-    gpg --import ~/Desktop/api.private.key
-    gpg-agent --daemon
-    touch a
-    gpg --use-agent --sign a
-
-  ```
-2. `./mvnw release:prepare`
-3. `git clean -i` and remove untracked files, besides release.properties
-4. `./mvnw release:perform` (alternative `git checkout HEAD~1 && ./mvnw deploy`)
-5. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic and release your repo. NOTE: If you had to login, reload the URL.  It doesn't take you to the right page post-login
-6. Update the README.md file with the new version and commit the change
-7. Push your commits as PR (`git push origin master:new-branch`)
