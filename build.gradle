@@ -13,7 +13,6 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.github.ngbinh.scalastyle:gradle-scalastyle-plugin_${gradle.ext.scalaMajorVersion}:1.0.1"
         classpath "gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.15.0"
     }
 }
@@ -23,7 +22,6 @@ allprojects {
     apply plugin: "scala"
     apply plugin: "maven"
     apply plugin: "maven-publish"
-    apply plugin: "scalaStyle"
     apply plugin: "com.github.hierynomus.license"
     apply plugin: "signing"
 
