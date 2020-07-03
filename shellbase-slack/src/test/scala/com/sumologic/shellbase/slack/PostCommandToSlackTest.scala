@@ -27,7 +27,7 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.junit.JUnitRunner
 import org.mockito.Mockito._
 import org.mockito.Matchers.{eq => matcher_eq, _}
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 
 @RunWith(classOf[JUnitRunner])
 class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with MockitoSugar {
