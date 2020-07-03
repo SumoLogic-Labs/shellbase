@@ -19,7 +19,6 @@
 package com.sumologic.shellbase.cmdline
 
 import java.io.File
-import java.lang.Boolean
 
 import com.sumologic.shellbase.{ExitShellCommandException, ShellPrompter, ValidationFailure, ValidationSuccess}
 import org.apache.commons.cli.{CommandLine, GnuParser, HelpFormatter, Options, ParseException}

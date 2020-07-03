@@ -25,7 +25,7 @@ import com.sumologic.shellbase.{ScriptRenderer, ShellBase, ShellCommand}
 import jline.console.completer.{ArgumentCompleter, Completer, NullCompleter, StringsCompleter}
 import org.apache.commons.cli.{CommandLine, Options}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class RunScriptCommand(scriptDirs: List[File], scriptExtension: String, runCommand: String => Boolean,
                        parseLine: String => List[String] = ShellBase.parseLine) extends ShellCommand("run-script",
@@ -80,7 +80,7 @@ class RunScriptCommand(scriptDirs: List[File], scriptExtension: String, runComma
   override def argCompleter: Completer = {
     val suffix = s".$scriptExtension"
     val scriptNames = findScripts(name => scriptExtension == null || name.endsWith(suffix)).map(_.getName)
-    new ArgumentCompleter(List(new StringsCompleter(scriptNames: _*), new NullCompleter))
+    new ArgumentCompleter(List(new StringsCompleter(scriptNames: _*), new NullCompleter): _*)
   }
 
   private def findScripts(fileNameFilter: String => Boolean): List[File] = for (

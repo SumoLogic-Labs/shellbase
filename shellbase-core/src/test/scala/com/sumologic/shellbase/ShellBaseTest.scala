@@ -257,7 +257,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
     "run notifications" in {
       import scala.collection.mutable
-      val notifications = new mutable.MutableList[(String,String)]
+      val notifications = new mutable.ListBuffer[(String,String)]
       val notification = new ShellNotification {
         override def name: String = "test"
 
@@ -273,7 +273,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
     "not run notifications for the 'notifications' command set" in {
       import scala.collection.mutable
-      val notifications = new mutable.MutableList[(String, String)]
+      val notifications = new mutable.ListBuffer[(String, String)]
       val notification = new ShellNotification {
         override def name: String = "test"
 

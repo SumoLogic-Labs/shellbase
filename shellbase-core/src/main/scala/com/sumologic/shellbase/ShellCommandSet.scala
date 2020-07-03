@@ -23,7 +23,7 @@ import jline.console.completer.AggregateCompleter
 import org.apache.commons.cli.{CommandLine, Options}
 import com.sumologic.shellbase.cmdline.RichCommandLine._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 object ShellCommandSet {
@@ -113,7 +113,7 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
     var seen = Map[String, String]()
 
     def checkCommandName(name: String, className: String) {
-      if (seen.containsKey(name)) {
+      if (seen.contains(name)) {
         val otherClass = seen(name)
         throw new DuplicateCommandException(s"Command '$name' is defined in $otherClass and $className!")
       } else {
@@ -153,7 +153,7 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
   final def execute(cmdLine: CommandLine) =
     throw new IllegalAccessException("Call the other signature!")
 
-  override def argCompleter = new AggregateCompleter(commands.map(_.completer))
+  override def argCompleter = new AggregateCompleter(commands.map(_.completer).toSeq: _*)
 
   def commandVariants(command: ShellCommand): List[String] = {
     command.basicVariants.flatMap(namingConvention.nameVersions(_)).distinct

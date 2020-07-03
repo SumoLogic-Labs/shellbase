@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 import org.apache.commons.cli.Options
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 class ArgumentTrackingOptions extends Options {
   private[this] val arguments = new ConcurrentLinkedQueue[CommandLineArgument]
@@ -31,5 +31,5 @@ class ArgumentTrackingOptions extends Options {
     arguments.add(arg)
   }
 
-  def getArguments: Array[CommandLineArgument] = arguments.toList.toArray
+  def getArguments: Array[CommandLineArgument] = arguments.asScala.toArray
 }

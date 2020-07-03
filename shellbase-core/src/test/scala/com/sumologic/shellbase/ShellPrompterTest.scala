@@ -294,11 +294,11 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
   }
 
   private def feedCharacters(string: String): Unit = {
-    queue.enqueue(string.toCharArray: _*)
+    string.toCharArray.foreach(queue.enqueue(_))
   }
 
   private def feedCharacters(string: Char*): Unit = {
-    queue.enqueue(string: _*)
+    string.foreach(queue.enqueue(_))
   }
 
   private var queue: mutable.Queue[Char] = _
