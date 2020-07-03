@@ -162,7 +162,7 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
     result
   }
 
-  private def printOptions(options: Seq[String], allowNoSelection: Boolean) {
+  private def printOptions(options: Seq[String], allowNoSelection: Boolean): Unit = {
     var i = 1
     options.foreach(option => {
       printf("%3d) %s%n", i, option)

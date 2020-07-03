@@ -36,7 +36,7 @@ class TeeCommand(runCommand: String => Boolean) extends ShellCommand("tee", "For
 
   override def maxNumberOfArguments = 1
 
-  override def addOptions(opts: Options) {
+  override def addOptions(opts: Options): Unit = {
     opts += CommandArgument
     opts += OutputFileOption
     opts += AppendFileFlag

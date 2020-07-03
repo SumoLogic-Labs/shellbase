@@ -67,7 +67,7 @@ class SleepCommand extends ShellCommand("sleep", "Sleeps the specified time peri
   private val PeriodArgument = new CommandLineArgument("period", 0, true)
   private val ShowIndicatorFlag = new CommandLineFlag("v", "verbose", "whether to print . every second while sleeping")
 
-  override def addOptions(opts: Options) {
+  override def addOptions(opts: Options): Unit = {
     opts += PeriodArgument
     opts += ShowIndicatorFlag
   }

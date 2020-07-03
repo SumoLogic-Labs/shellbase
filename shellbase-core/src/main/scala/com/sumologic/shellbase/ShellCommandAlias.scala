@@ -30,11 +30,11 @@ class ShellCommandAlias(original: ShellCommand,
                         deprecated: Boolean = false)
   extends ShellCommand(name, original.helpText, aliases, deprecated) {
 
-  override def maxNumberOfArguments = original.maxNumberOfArguments
+  override def maxNumberOfArguments: Int = original.maxNumberOfArguments
 
-  def execute(cmdLine: CommandLine) = original.execute(cmdLine)
+  def execute(cmdLine: CommandLine): Boolean = original.execute(cmdLine)
 
-  override def addOptions(opts: Options) {
+  override def addOptions(opts: Options): Unit = {
     original.addOptions(opts)
   }
 }

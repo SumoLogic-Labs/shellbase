@@ -175,7 +175,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
       val sut = setUpShellBase(List(original, alias))
 
-      def thisShouldRunIt(line: String) {
+      def thisShouldRunIt(line: String): Unit = {
         original.executed = false
         sut.runCommand(line)
         original.executed should be(true)
@@ -193,7 +193,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
       val sut = setUpShellBase(List(original, alias))
 
-      def thisShouldRunIt(line: String) {
+      def thisShouldRunIt(line: String): Unit = {
         original.executed = false
         sut.runCommand(line)
         original.executed should be(true)
@@ -213,7 +213,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
       val sut = setUpShellBase(List(original, alias))
 
-      def thisShouldRunIt(line: String) {
+      def thisShouldRunIt(line: String): Unit = {
         original.executed = false
         sut.runCommand(line)
         original.executed should be(true)

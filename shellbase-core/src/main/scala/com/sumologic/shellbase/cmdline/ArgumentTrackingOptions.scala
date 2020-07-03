@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
 class ArgumentTrackingOptions extends Options {
   private[this] val arguments = new ConcurrentLinkedQueue[CommandLineArgument]
 
-  def addArgument(arg: CommandLineArgument) {
+  def addArgument(arg: CommandLineArgument): Unit = {
     arguments.add(arg)
   }
 

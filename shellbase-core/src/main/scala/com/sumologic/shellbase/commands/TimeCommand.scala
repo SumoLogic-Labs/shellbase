@@ -32,7 +32,7 @@ class TimeCommand(runCommand: String => Boolean) extends ShellCommand("time", "M
 
   override def maxNumberOfArguments = 1
 
-  override def addOptions(opts: Options) {
+  override def addOptions(opts: Options): Unit = {
     opts += CommandArgument
   }
 
