@@ -159,7 +159,7 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
     command.basicVariants.flatMap(namingConvention.nameVersions(_)).distinct
   }
 
-  def findCommand(input: String): Unit = {
+  def findCommand(input: String): Option[ShellCommand] = {
     val normalizedCommand = input.toLowerCase.trim
     commands.find(command => commandVariants(command).contains(normalizedCommand))
   }
