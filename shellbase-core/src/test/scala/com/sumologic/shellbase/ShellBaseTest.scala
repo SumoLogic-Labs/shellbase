@@ -29,6 +29,7 @@ import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import sun.misc.Signal
 import org.mockito.Mockito._
+import org.scalatest.time.{Millis, Span}
 
 import scala.collection.JavaConverters._
 
@@ -328,6 +329,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       Signal.raise(new Signal("INT"))
 
       // test
+      implicit val patienceConfig: PatienceConfig = PatienceConfig(Span(1000, Millis))
       eventually { sutThread.isAlive should be (false) }
       sut.interruptKeyMonitor.isMonitoring should be (false)
       cmd.completedSuccessfully should be (false)
