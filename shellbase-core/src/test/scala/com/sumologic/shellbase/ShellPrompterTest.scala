@@ -28,7 +28,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 
 import scala.collection.mutable
 
@@ -294,11 +294,11 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
   }
 
   private def feedCharacters(string: String): Unit = {
-    queue.enqueue(string.toCharArray: _*)
+    string.toCharArray.foreach(queue.enqueue(_))
   }
 
   private def feedCharacters(string: Char*): Unit = {
-    queue.enqueue(string: _*)
+    string.foreach(queue.enqueue(_))
   }
 
   private var queue: mutable.Queue[Char] = _

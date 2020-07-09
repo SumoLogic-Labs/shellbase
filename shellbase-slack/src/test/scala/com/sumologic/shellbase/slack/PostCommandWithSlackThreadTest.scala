@@ -28,7 +28,7 @@ import org.mockito.Matchers.{any, anyObject, anyString}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.junit.JUnitRunner
-import org.scalatest.mock.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.mockito.Matchers.{eq => matcher_eq, _}
 
 @RunWith(classOf[JUnitRunner])

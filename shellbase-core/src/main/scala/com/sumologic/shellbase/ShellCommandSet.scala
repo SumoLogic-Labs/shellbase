@@ -23,7 +23,7 @@ import jline.console.completer.AggregateCompleter
 import org.apache.commons.cli.{CommandLine, Options}
 import com.sumologic.shellbase.cmdline.RichCommandLine._
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 
 object ShellCommandSet {
@@ -45,11 +45,11 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
 
   private val emptyCommandLine = parseOptions(Seq())
 
-  private[this] def preExecute(shellCommand: ShellCommand, arguments: Seq[String]) {
+  private[this] def preExecute(shellCommand: ShellCommand, arguments: Seq[String]): Unit = {
     preExecuteHooks.foreach(_(shellCommand, arguments))
   }
 
-  private[this] def postExecute(shellCommand: ShellCommand, arguments: Seq[String]) {
+  private[this] def postExecute(shellCommand: ShellCommand, arguments: Seq[String]): Unit = {
     postExecuteHooks.foreach(_(shellCommand, arguments))
   }
 
@@ -112,8 +112,8 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
 
     var seen = Map[String, String]()
 
-    def checkCommandName(name: String, className: String) {
-      if (seen.containsKey(name)) {
+    def checkCommandName(name: String, className: String): Unit = {
+      if (seen.contains(name)) {
         val otherClass = seen(name)
         throw new DuplicateCommandException(s"Command '$name' is defined in $otherClass and $className!")
       } else {
@@ -121,7 +121,7 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
       }
     }
 
-    def checkShellCommand(command: ShellCommand) {
+    def checkShellCommand(command: ShellCommand): Unit = {
       val className = command.getClass.getName
       commandVariants(command).foreach(checkCommandName(_, className))
       command match {
@@ -153,13 +153,13 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
   final def execute(cmdLine: CommandLine) =
     throw new IllegalAccessException("Call the other signature!")
 
-  override def argCompleter = new AggregateCompleter(commands.map(_.completer))
+  override def argCompleter = new AggregateCompleter(commands.map(_.completer).toSeq: _*)
 
   def commandVariants(command: ShellCommand): List[String] = {
     command.basicVariants.flatMap(namingConvention.nameVersions(_)).distinct
   }
 
-  def findCommand(input: String) = {
+  def findCommand(input: String): Option[ShellCommand] = {
     val normalizedCommand = input.toLowerCase.trim
     commands.find(command => commandVariants(command).contains(normalizedCommand))
   }
@@ -205,9 +205,9 @@ class ShellCommandSet(name: String, helpText: String, aliases: List[String] = Li
 
   commands += new ShellCommand("help", "Print online help.", List("?")) {
 
-    override def maxNumberOfArguments = Int.MaxValue
+    override def maxNumberOfArguments: Int = Int.MaxValue
 
-    def execute(cmdLine: CommandLine) = {
+    def execute(cmdLine: CommandLine): Boolean = {
       val showAllCommands = cmdLine.checkFlag(ShowAllCommands)
       printHelp(cmdLine.getArgs.toList.map(_.trim).filter(_.nonEmpty), showAllCommands)
     }

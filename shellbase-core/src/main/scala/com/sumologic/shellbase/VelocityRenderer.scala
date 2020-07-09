@@ -25,7 +25,7 @@ import org.apache.commons.io.IOUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.{Velocity, VelocityEngine}
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 object VelocityRenderer {
 
@@ -75,7 +75,7 @@ object VelocityRenderer {
     val tempFile = File.createTempFile(".tmp", ".sh")
 
     val modifiableVariables = new java.util.HashMap[AnyRef, AnyRef]()
-    modifiableVariables ++= variables
+    modifiableVariables.asScala ++= variables
 
     val writer = new FileWriter(tempFile)
     try {

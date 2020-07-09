@@ -20,7 +20,8 @@ package com.sumologic.shellbase.commands
 
 import com.sumologic.shellbase.ShellCommand
 import org.apache.commons.cli.CommandLine
-import scala.collection.JavaConversions._
+
+import scala.collection.JavaConverters._
 
 class EchoCommand extends ShellCommand("echo", "Write to the screen") {
 
@@ -28,7 +29,7 @@ class EchoCommand extends ShellCommand("echo", "Write to the screen") {
 
   def execute(cmdLine: CommandLine): Boolean = {
     if (cmdLine.getArgList.size() > 0) {
-      println(cmdLine.getArgList.mkString(" "))
+      println(cmdLine.getArgList.asScala.mkString(" "))
     }
 
     true

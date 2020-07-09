@@ -29,6 +29,7 @@ import org.scalatest.concurrent.Eventually
 import org.scalatest.junit.JUnitRunner
 import sun.misc.Signal
 import org.mockito.Mockito._
+import org.scalatest.time.{Millis, Span}
 
 import scala.collection.JavaConverters._
 
@@ -175,7 +176,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
       val sut = setUpShellBase(List(original, alias))
 
-      def thisShouldRunIt(line: String) {
+      def thisShouldRunIt(line: String): Unit = {
         original.executed = false
         sut.runCommand(line)
         original.executed should be(true)
@@ -193,7 +194,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
       val sut = setUpShellBase(List(original, alias))
 
-      def thisShouldRunIt(line: String) {
+      def thisShouldRunIt(line: String): Unit = {
         original.executed = false
         sut.runCommand(line)
         original.executed should be(true)
@@ -213,7 +214,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
       val sut = setUpShellBase(List(original, alias))
 
-      def thisShouldRunIt(line: String) {
+      def thisShouldRunIt(line: String): Unit = {
         original.executed = false
         sut.runCommand(line)
         original.executed should be(true)
@@ -257,7 +258,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
     "run notifications" in {
       import scala.collection.mutable
-      val notifications = new mutable.MutableList[(String,String)]
+      val notifications = new mutable.ListBuffer[(String,String)]
       val notification = new ShellNotification {
         override def name: String = "test"
 
@@ -273,7 +274,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
 
     "not run notifications for the 'notifications' command set" in {
       import scala.collection.mutable
-      val notifications = new mutable.MutableList[(String, String)]
+      val notifications = new mutable.ListBuffer[(String, String)]
       val notification = new ShellNotification {
         override def name: String = "test"
 
@@ -328,6 +329,7 @@ class ShellBaseTest extends CommonWordSpec with Eventually {
       Signal.raise(new Signal("INT"))
 
       // test
+      implicit val patienceConfig: PatienceConfig = PatienceConfig(Span(1000, Millis))
       eventually { sutThread.isAlive should be (false) }
       sut.interruptKeyMonitor.isMonitoring should be (false)
       cmd.completedSuccessfully should be (false)

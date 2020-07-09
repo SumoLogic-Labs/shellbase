@@ -67,7 +67,7 @@ object InterruptKeyMonitor {
 
     def now = System.currentTimeMillis()
 
-    override def handle(sig: Signal) {
+    override def handle(sig: Signal): Unit = {
       if (callbackOpt.isDefined) {
         if (now - lastInterrupt < 1000) {
           println("Killing the shell...")

@@ -19,7 +19,6 @@
 package com.sumologic.shellbase.cmdline
 
 import java.io.File
-import java.lang.Boolean
 
 import com.sumologic.shellbase.{ExitShellCommandException, ShellPrompter, ValidationFailure, ValidationSuccess}
 import org.apache.commons.cli.{CommandLine, GnuParser, HelpFormatter, Options, ParseException}
@@ -214,7 +213,7 @@ class RichOptions(options: Options) {
 
   var arguments = List[CommandLineArgument]()
 
-  def +=(arg: CommandLineElement) {
+  def +=(arg: CommandLineElement): Unit = {
     require(arg != null)
     arg match {
       case a: CommandLineArgument => this addArgument a
@@ -224,13 +223,13 @@ class RichOptions(options: Options) {
     }
   }
 
-  def addAll(args: CommandLineElement*) {
+  def addAll(args: CommandLineElement*): Unit = {
     args foreach {
       this.+=
     }
   }
 
-  def addArgument(arg: CommandLineArgument) = {
+  def addArgument(arg: CommandLineArgument): Unit = {
     require(arg != null)
 
     if (arguments.exists(_.index == arg.index)) {
@@ -245,7 +244,7 @@ class RichOptions(options: Options) {
     arguments +:= arg
   }
 
-  def addFlag(flag: CommandLineFlag) {
+  def addFlag(flag: CommandLineFlag): Unit = {
 
     require(flag != null)
 
@@ -253,7 +252,7 @@ class RichOptions(options: Options) {
     options.addOption(shortName, longName, false, helpText)
   }
 
-  def addOption(option: CommandLineOption) {
+  def addOption(option: CommandLineOption): Unit = {
 
     require(option != null)
 

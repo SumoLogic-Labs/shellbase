@@ -23,7 +23,7 @@ import com.sumologic.shellbase.cmdline.ArgumentTrackingOptions
 import jline.console.completer.{Completer, NullCompleter, StringsCompleter}
 import org.apache.commons.cli.{CommandLine, GnuParser, HelpFormatter, Options, ParseException, UnrecognizedOptionException}
 import org.slf4j.LoggerFactory
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.concurrent.{ExecutionContext, Future}
 
 class ExitShellCommandException(message: String) extends RuntimeException(message)
@@ -204,6 +204,6 @@ abstract class ShellCommand(val name: String,
   def basicVariants: List[String] = List(name) ++ aliases
 
   final def completer = {
-    new NestedCompleter(new StringsCompleter(basicVariants), argCompleter)
+    new NestedCompleter(new StringsCompleter(basicVariants.asJavaCollection), argCompleter)
   }
 }

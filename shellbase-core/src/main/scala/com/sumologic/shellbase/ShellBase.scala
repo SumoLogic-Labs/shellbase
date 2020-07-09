@@ -130,7 +130,7 @@ abstract class ShellBase(val name: String)
   /**
     * Exit the shell.
     */
-  protected def exitShell(exitValue: Int) {
+  protected def exitShell(exitValue: Int): Unit = {
     System.exit(exitValue)
   }
 
@@ -145,7 +145,7 @@ abstract class ShellBase(val name: String)
   // NOTE(stefan, 2014-01-06): From the jline JavaDoc:Implementers should install shutdown hook to
   // call {@link FileHistory#flush} to save history to disk.
   Runtime.getRuntime.addShutdownHook(new Thread() {
-    override def run() = {
+    override def run(): Unit = {
       history.flush()
       interruptKeyMonitor.shutdown()
     }
@@ -159,7 +159,7 @@ abstract class ShellBase(val name: String)
   reader.setHistory(history)
   reader.setHandleUserInterrupt(true)
 
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     Thread.currentThread.setName("Shell main")
     try {
       val result = actualMain(args)
@@ -233,20 +233,20 @@ abstract class ShellBase(val name: String)
     }
   }
 
-  final def initializeCommands() {
+  final def initializeCommands(): Unit = {
     val customCommands = commands
     rootSet.commands ++= customCommands
     validateCommands()
   }
 
-  def validateCommands() = {
+  def validateCommands(): Unit = {
     rootSet.validateCommands()
     if (enforceNamingConventions) {
       rootSet.validateCommandNames()
     }
   }
 
-  private def interactiveMainLoop() {
+  private def interactiveMainLoop(): Unit = {
     println("  Enter your commands below. Type 'help' for help. ")
 
     reader.setAutoprintThreshold(128) // allow more completions candidates without prompting
