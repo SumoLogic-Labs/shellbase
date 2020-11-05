@@ -27,7 +27,7 @@ trait PostToSlackHelper {
   protected val slackState: SlackState
 
   protected val username: String = System.getProperty("user.name", "unknown")
-  protected val blacklistedUsernames: Set[String] = Set.empty
+  protected val excludedUsernames: Set[String] = Set.empty
 
   def slackMessagingConfigured: Boolean = slackState.slackClient.isDefined && slackState.slackChannels.nonEmpty
 
@@ -36,7 +36,7 @@ trait PostToSlackHelper {
   def sendSlackMessageIfConfigured(msg: String, additionalOptions: Map[String, String] = Map.empty):
   Option[PostMessageResponse] = {
     var message : Option[PostMessageResponse] = None
-    if (!blacklistedUsernames.contains(username)) {
+    if (!excludedUsernames.contains(username)) {
       for (client <- slackState.slackClient;
            channel <- slackState.slackChannels.filter(slackChannelFilter)) {
         message = Option(client.chat.postMessage(channel, msg, slackState.slackOptions ++ additionalOptions))

@@ -82,7 +82,7 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
 
     "not send send the message to filtered out channels" in {
       val (_, chatClient) = createMockClient
-      createTwoChannelsAndOneBlacklistedOne
+      createTwoChannelsAndOneFilteredOut
       sut.slackMessagingConfigured should be (true)
 
       sut.postCommandToSlack(List("Hi"), List.empty) should be (Some(ts))
@@ -158,7 +158,7 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
     channels
   }
 
-  private def createTwoChannelsAndOneBlacklistedOne: List[String] = {
+  private def createTwoChannelsAndOneFilteredOut: List[String] = {
     val channels = List("#my_channel1", "#my_channel2", "#my_channel3")
     when(mockState.slackChannels).thenReturn(channels)
     channels
