@@ -26,21 +26,21 @@ class PostToSlackHelperTest extends CommonWordSpec {
   // NOTE: Some of the test coverage for PostToSlackHelper is done by PostCommandToSlackTest
 
   "PostToSlackHelper" should {
-    "skip posting if username is blacklisted" in {
+    "skip posting if username is excluded" in {
       val sut = new PostToSlackHelper {
         override protected val slackState: SlackState = null
         override protected val username = "my_test"
-        override protected val blacklistedUsernames = Set("my_test", "my_test_2")
+        override protected val excludedUsernames = Set("my_test", "my_test_2")
       }
 
       sut.sendSlackMessageIfConfigured("")
     }
 
-    "allow posting if username is not blacklist" in {
+    "allow posting if username is not excluded" in {
       val sut = new PostToSlackHelper {
         override protected val slackState: SlackState = null
         override protected val username = "abc"
-        override protected val blacklistedUsernames = Set("my_test", "my_test_2")
+        override protected val excludedUsernames = Set("my_test", "my_test_2")
       }
 
       intercept[NullPointerException] {
