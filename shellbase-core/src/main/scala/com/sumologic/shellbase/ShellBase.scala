@@ -352,12 +352,9 @@ abstract class ShellBase(val name: String)
   // -----------------------------------------------------------------------------------------------
 
   def getListParameter(cmdLine: CommandLine, name: String): Seq[String] = {
-    val str = cmdLine.getOptionValue(name)
-    if (str == null) {
-      return List[String]()
-    }
-
-    str.split(",")
+    Option(cmdLine.getOptionValue(name))
+      .map(_.split(',').toSeq)
+      .getOrElse(Seq.empty[String])
   }
 
   // -----------------------------------------------------------------------------------------------
