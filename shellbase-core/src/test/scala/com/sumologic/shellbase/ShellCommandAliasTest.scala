@@ -23,7 +23,7 @@ import com.sumologic.shellbase.cmdline.{CommandLineOption, RichCommandLine}
 import org.apache.commons.cli.{CommandLine, Options}
 import org.junit.runner.RunWith
 import org.mockito.Mockito._
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ShellCommandAliasTest extends CommonWordSpec {

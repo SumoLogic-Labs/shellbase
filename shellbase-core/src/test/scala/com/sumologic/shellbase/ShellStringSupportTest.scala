@@ -20,7 +20,7 @@ package com.sumologic.shellbase
 
 import com.sumologic.shellbase.ShellStringSupport._
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ShellStringSupportTest extends CommonWordSpec {
