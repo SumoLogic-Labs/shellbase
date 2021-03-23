@@ -22,7 +22,7 @@ import com.sumologic.shellbase.CommonWordSpec
 import com.sumologic.shellbase.cmdline.RichCommandLine._
 import org.apache.commons.cli.Options
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class RichCommandLineTest extends CommonWordSpec {
