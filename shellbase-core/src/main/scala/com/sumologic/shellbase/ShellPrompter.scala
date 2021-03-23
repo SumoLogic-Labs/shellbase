@@ -176,18 +176,19 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
 
   def pickFromOptions(headline: String,
                       options: Seq[String],
-                      default: String = null,
+                      default: Option[String] = None,
                       allowNoSelection: Boolean = false,
                       maxAttempts: Int = 3): String = {
     var defaultNumber: String = null
-    if (default == null) {
-      println(headline)
-    } else {
-      println(s"$headline[$default]")
-      val index = options.indexOf(default)
-      if (index > 0) {
-        defaultNumber = (index + 1).toString
-      }
+    default match {
+      case None =>
+        println(headline)
+      case Some(default) =>
+        println(s"$headline[$default]")
+        val index = options.indexOf(default)
+        if (index > 0) {
+          defaultNumber = (index + 1).toString
+        }
     }
 
     val from = allowNoSelection match {
