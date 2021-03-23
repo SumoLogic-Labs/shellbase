@@ -228,7 +228,7 @@ class RichOptions(options: Options) {
     require(arg != null)
 
     if (arguments.exists(_.index == arg.index)) {
-      throw new IllegalArgumentException("Argument with index %d already defined!".format(arg.index))
+      throw new IllegalArgumentException(s"Argument with index ${arg.index} already defined!")
     }
 
     options match {
@@ -254,11 +254,11 @@ class RichOptions(options: Options) {
     import option._
 
     List(shortName, longName).foreach {
-      name => require(options.getOption(name) == null, "Option %s already defined!".format(name))
+      name => require(options.getOption(name) == null, s"Option $name already defined!")
     }
 
     val helpTextWithDefault = defaultValue match {
-      case Some(default) => "%s (default: %s)".format(helpText, default)
+      case Some(default) => s"$helpText (default: $default)"
       case None => helpText
     }
 

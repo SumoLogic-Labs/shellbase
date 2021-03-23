@@ -129,8 +129,8 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
                   maxAttempts: Int = 3): String = {
 
     val prompt = default match {
-      case Some(default) => "%s[%s]: ".format(question, default)
-      case None => "%s: ".format(question)
+      case Some(default) => s"$question[$default]: "
+      case None => s"$question: "
     }
 
     var attempts = 0
@@ -183,7 +183,7 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
     if (default == null) {
       println(headline)
     } else {
-      println("%s[%s]".format(headline, default))
+      println(s"$headline[$default]")
       val index = options.indexOf(default)
       if (index > 0) {
         defaultNumber = (index + 1).toString
@@ -286,7 +286,7 @@ object ShellPromptValidators {
     if (checkString.matches(regex)) {
       ValidationSuccess
     } else {
-      new ValidationFailure("Did not match regex %s!".format(regex))
+      new ValidationFailure(s"Did not match regex $regex!")
     }
   }
 
@@ -340,7 +340,7 @@ object ShellPromptValidators {
       }
     }
 
-    ValidationFailure("Value must be between %d and %d.".format(from, to))
+    ValidationFailure(s"Value must be between $from and $to.")
   }
 
   def inTimeRange(from: Long, to: Long)(result: String): ValidationResult = {
@@ -363,7 +363,7 @@ object ShellPromptValidators {
       }
     }
 
-    ValidationFailure("Value must be between %f and %f.".format(from, to))
+    ValidationFailure(s"Value must be between $from and $to.")
   }
 
   def positiveInteger(result: String): ValidationResult = {
@@ -399,7 +399,7 @@ object ShellPromptValidators {
 
       ValidationSuccess
     } catch {
-      case e: Exception => new ValidationFailure("%s, Not a valid url!".format(result))
+      case e: Exception => new ValidationFailure(s"$result, Not a valid url!")
     }
   }
 
@@ -407,7 +407,7 @@ object ShellPromptValidators {
     val file = new File(result)
     file.exists() match {
       case true => ValidationSuccess
-      case false => new ValidationFailure("File %s does not exist!".format(file.getAbsolutePath))
+      case false => new ValidationFailure(s"File ${file.getAbsolutePath} does not exist!")
     }
   }
 
@@ -415,22 +415,22 @@ object ShellPromptValidators {
     val file = new File(result)
     file.exists() match {
       case false => ValidationSuccess
-      case true => new ValidationFailure("File %s already exists!".format(file.getAbsolutePath))
+      case true => new ValidationFailure(s"File ${file.getAbsolutePath} already exists!")
     }
   }
 
   def nonExistingFile(directory: File, fileNamePattern: String = "%s")(result: String) = {
     directory.listFiles.find(_ == fileNamePattern.format(result)) match {
-      case Some(file) => new ValidationFailure("File %s already exists.".format(file.getAbsolutePath))
+      case Some(file) => new ValidationFailure(s"File ${file.getAbsolutePath} already exists.")
       case None => ValidationSuccess
     }
   }
 
   def lengthBetween(min: Int, max: Int)(result: String) = {
     if (min >= 0 && result.length < min) {
-      new ValidationFailure("Minimum length is %d.".format(min))
+      new ValidationFailure(s"Minimum length is $min.")
     } else if (max > 0 && result.length > max) {
-      new ValidationFailure("Maximum length is %d.".format(max))
+      new ValidationFailure(s"Maximum length is $max.")
     } else {
       ValidationSuccess
     }
@@ -448,7 +448,7 @@ object ShellPromptValidators {
   def limitedCharacterSet(alphabet: String)(result: String): ValidationResult = {
     for (char <- result) {
       if (!alphabet.contains(char)) {
-        return new ValidationFailure("Please only use the following characters: %s".format(alphabet))
+        return new ValidationFailure(s"Please only use the following characters: $alphabet")
       }
     }
 
@@ -461,8 +461,10 @@ object ShellPromptValidators {
     if (!res1.valid) {
       val res2 = validator2(result)
       if (!res2.valid) {
-        return new ValidationFailure("Correct either of the following issues:%n  %s%n  %s".format
-        (res1.message, res2.message))
+        return new ValidationFailure(
+          s"""Correct either of the following issues:
+             |  ${res1.message}
+             |  ${res2.message}""".stripMargin)
       }
     }
 
