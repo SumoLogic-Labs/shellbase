@@ -229,7 +229,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
 
     "return default if answer doesn't answer" in {
       answerQuestionWith("")
-      sutWithMock.pickFromOptions("", Seq("a", "b", "c"), default = "b") should be("b")
+      sutWithMock.pickFromOptions("", Seq("a", "b", "c"), default = Some("b")) should be("b")
     }
 
     "return null if user says 0 and allowNoSelection is true" in {
