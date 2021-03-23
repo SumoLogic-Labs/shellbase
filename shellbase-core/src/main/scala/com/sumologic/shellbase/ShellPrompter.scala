@@ -109,8 +109,8 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
         ShellPromptValidators.lengthBetween(minLength, -1) _)
       val promptLength = math.max(firstPrompt.length, secondPrompt.length)
       val formatString = "%" + promptLength + "s"
-      val password = askQuestion(formatString.format(firstPrompt), validators, maskCharacter = '*')
-      val confirm = askQuestion(formatString.format(secondPrompt), validators, maskCharacter = '*')
+      val password = askQuestion(formatString.format(firstPrompt), validators, maskCharacter = Some('*'))
+      val confirm = askQuestion(formatString.format(secondPrompt), validators, maskCharacter = Some('*'))
       if (password == confirm) {
         return password
       }
@@ -124,22 +124,22 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
 
   def askQuestion(question: String,
                   validators: Seq[String => ValidationResult] = List[String => ValidationResult](),
-                  maskCharacter: Character = null,
-                  default: String = null,
+                  maskCharacter: Option[Character] = None,
+                  default: Option[String] = None,
                   maxAttempts: Int = 3): String = {
 
-    var prompt = "%s: ".format(question)
-    if (default != null) {
-      prompt = "%s[%s]: ".format(question, default)
+    val prompt = default match {
+      case Some(default) => "%s[%s]: ".format(question, default)
+      case None => "%s: ".format(question)
     }
 
     var attempts = 0
     var result: String = null
     while (result == null && attempts < maxAttempts) {
-      result = in.readLine(prompt, maskCharacter).trim
+      result = in.readLine(prompt, maskCharacter.orNull).trim
 
-      if ((result == null || result.trim.length < 1) && default != null) {
-        result = default
+      if ((result == null || result.trim.length < 1) && default.nonEmpty) {
+        result = default.orNull
       }
 
       var valid = true
@@ -202,7 +202,7 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
     var attempts = 0
     while (attempts < maxAttempts) {
       printOptions(options, allowNoSelection)
-      val number = askQuestion("Selection", List(validator), default = defaultNumber)
+      val number = askQuestion("Selection", List(validator), default = Option(defaultNumber))
       if (number != null) {
         val no = Integer.parseInt(number)
         if (no == 0) {

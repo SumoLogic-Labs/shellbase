@@ -194,7 +194,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
 
       answerQuestionWith("")
 
-      sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty), default = default) should equal(default)
+      sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty), default = Some(default)) should equal(default)
     }
 
     "throw exception if all validation fails" in {
