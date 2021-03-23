@@ -28,7 +28,7 @@ allprojects {
     group = "com.sumologic.shellbase"
     description = "Sumo Logic's Scala-based interactive shell framework"
 
-    version = '1.5.5-SNAPSHOT'
+    version = '2.0.0-SNAPSHOT'
 
     sourceCompatibility = javaSourceVersion
     targetCompatibility = javaTargetVersion
