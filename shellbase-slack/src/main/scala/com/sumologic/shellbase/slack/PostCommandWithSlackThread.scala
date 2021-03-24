@@ -60,14 +60,14 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
         else "Command failed"
       }
     }
-    val linkName = {
+    val linkName: Map[String, String] = {
       if (shouldTagUser) Map("link_names" -> "1")
       else Map.empty
     }
 
     try {
       retry(maxAttempts = 3, sleepTime = 1000) {
-        sendSlackMessageIfConfigured(replyMessage, linkName ++ Map("thread_ts" -> ts))
+        sendSlackMessageIfConfigured(replyMessage, linkName ++ Map[String, String]("thread_ts" -> ts))
       }
       None
     } catch {
