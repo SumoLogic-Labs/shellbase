@@ -134,9 +134,9 @@ abstract class ShellCommand(val name: String,
   def validate(cmdLine: CommandLine): Option[String] = {
     if (maxNumberOfArguments >= 0 && cmdLine.getArgs.size > maxNumberOfArguments) {
       if (maxNumberOfArguments == 0) {
-        Some("Unexpected command line arguments: %s".format(cmdLine.getArgs.mkString(" ")))
+        Some(s"Unexpected command line arguments: ${cmdLine.getArgs.mkString(" ")}")
       } else {
-        Some("At most %d arguments expected, but %d received.".format(maxNumberOfArguments, cmdLine.getArgs.size))
+        Some(s"At most $maxNumberOfArguments arguments expected, but ${cmdLine.getArgs.size} received.")
       }
     } else {
       None

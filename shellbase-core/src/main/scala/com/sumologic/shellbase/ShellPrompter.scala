@@ -109,8 +109,8 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
         ShellPromptValidators.lengthBetween(minLength, -1) _)
       val promptLength = math.max(firstPrompt.length, secondPrompt.length)
       val formatString = "%" + promptLength + "s"
-      val password = askQuestion(formatString.format(firstPrompt), validators, maskCharacter = '*')
-      val confirm = askQuestion(formatString.format(secondPrompt), validators, maskCharacter = '*')
+      val password = askQuestion(formatString.format(firstPrompt), validators, maskCharacter = Some('*'))
+      val confirm = askQuestion(formatString.format(secondPrompt), validators, maskCharacter = Some('*'))
       if (password == confirm) {
         return password
       }
@@ -124,22 +124,22 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
 
   def askQuestion(question: String,
                   validators: Seq[String => ValidationResult] = List[String => ValidationResult](),
-                  maskCharacter: Character = null,
-                  default: String = null,
+                  maskCharacter: Option[Character] = None,
+                  default: Option[String] = None,
                   maxAttempts: Int = 3): String = {
 
-    var prompt = "%s: ".format(question)
-    if (default != null) {
-      prompt = "%s[%s]: ".format(question, default)
+    val prompt = default match {
+      case Some(default) => s"$question[$default]: "
+      case None => s"$question: "
     }
 
     var attempts = 0
     var result: String = null
     while (result == null && attempts < maxAttempts) {
-      result = in.readLine(prompt, maskCharacter).trim
+      result = in.readLine(prompt, maskCharacter.orNull).trim
 
-      if ((result == null || result.trim.length < 1) && default != null) {
-        result = default
+      if ((result == null || result.trim.length < 1) && default.nonEmpty) {
+        result = default.orNull
       }
 
       var valid = true
@@ -176,18 +176,19 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
 
   def pickFromOptions(headline: String,
                       options: Seq[String],
-                      default: String = null,
+                      default: Option[String] = None,
                       allowNoSelection: Boolean = false,
                       maxAttempts: Int = 3): String = {
     var defaultNumber: String = null
-    if (default == null) {
-      println(headline)
-    } else {
-      println("%s[%s]".format(headline, default))
-      val index = options.indexOf(default)
-      if (index > 0) {
-        defaultNumber = (index + 1).toString
-      }
+    default match {
+      case None =>
+        println(headline)
+      case Some(default) =>
+        println(s"$headline[$default]")
+        val index = options.indexOf(default)
+        if (index > 0) {
+          defaultNumber = (index + 1).toString
+        }
     }
 
     val from = allowNoSelection match {
@@ -202,7 +203,7 @@ class ShellPrompter(in: ConsoleReader = new ConsoleReader) {
     var attempts = 0
     while (attempts < maxAttempts) {
       printOptions(options, allowNoSelection)
-      val number = askQuestion("Selection", List(validator), default = defaultNumber)
+      val number = askQuestion("Selection", List(validator), default = Option(defaultNumber))
       if (number != null) {
         val no = Integer.parseInt(number)
         if (no == 0) {
@@ -286,7 +287,7 @@ object ShellPromptValidators {
     if (checkString.matches(regex)) {
       ValidationSuccess
     } else {
-      new ValidationFailure("Did not match regex %s!".format(regex))
+      new ValidationFailure(s"Did not match regex $regex!")
     }
   }
 
@@ -340,7 +341,7 @@ object ShellPromptValidators {
       }
     }
 
-    ValidationFailure("Value must be between %d and %d.".format(from, to))
+    ValidationFailure(s"Value must be between $from and $to.")
   }
 
   def inTimeRange(from: Long, to: Long)(result: String): ValidationResult = {
@@ -363,7 +364,7 @@ object ShellPromptValidators {
       }
     }
 
-    ValidationFailure("Value must be between %f and %f.".format(from, to))
+    ValidationFailure(s"Value must be between $from and $to.")
   }
 
   def positiveInteger(result: String): ValidationResult = {
@@ -399,7 +400,7 @@ object ShellPromptValidators {
 
       ValidationSuccess
     } catch {
-      case e: Exception => new ValidationFailure("%s, Not a valid url!".format(result))
+      case e: Exception => new ValidationFailure(s"$result, Not a valid url!")
     }
   }
 
@@ -407,7 +408,7 @@ object ShellPromptValidators {
     val file = new File(result)
     file.exists() match {
       case true => ValidationSuccess
-      case false => new ValidationFailure("File %s does not exist!".format(file.getAbsolutePath))
+      case false => new ValidationFailure(s"File ${file.getAbsolutePath} does not exist!")
     }
   }
 
@@ -415,22 +416,22 @@ object ShellPromptValidators {
     val file = new File(result)
     file.exists() match {
       case false => ValidationSuccess
-      case true => new ValidationFailure("File %s already exists!".format(file.getAbsolutePath))
+      case true => new ValidationFailure(s"File ${file.getAbsolutePath} already exists!")
     }
   }
 
   def nonExistingFile(directory: File, fileNamePattern: String = "%s")(result: String) = {
     directory.listFiles.find(_ == fileNamePattern.format(result)) match {
-      case Some(file) => new ValidationFailure("File %s already exists.".format(file.getAbsolutePath))
+      case Some(file) => new ValidationFailure(s"File ${file.getAbsolutePath} already exists.")
       case None => ValidationSuccess
     }
   }
 
   def lengthBetween(min: Int, max: Int)(result: String) = {
     if (min >= 0 && result.length < min) {
-      new ValidationFailure("Minimum length is %d.".format(min))
+      new ValidationFailure(s"Minimum length is $min.")
     } else if (max > 0 && result.length > max) {
-      new ValidationFailure("Maximum length is %d.".format(max))
+      new ValidationFailure(s"Maximum length is $max.")
     } else {
       ValidationSuccess
     }
@@ -448,7 +449,7 @@ object ShellPromptValidators {
   def limitedCharacterSet(alphabet: String)(result: String): ValidationResult = {
     for (char <- result) {
       if (!alphabet.contains(char)) {
-        return new ValidationFailure("Please only use the following characters: %s".format(alphabet))
+        return new ValidationFailure(s"Please only use the following characters: $alphabet")
       }
     }
 
@@ -461,8 +462,10 @@ object ShellPromptValidators {
     if (!res1.valid) {
       val res2 = validator2(result)
       if (!res2.valid) {
-        return new ValidationFailure("Correct either of the following issues:%n  %s%n  %s".format
-        (res1.message, res2.message))
+        return new ValidationFailure(
+          s"""Correct either of the following issues:
+             |  ${res1.message}
+             |  ${res2.message}""".stripMargin)
       }
     }
 

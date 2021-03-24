@@ -19,7 +19,7 @@
 package com.sumologic.shellbase
 
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ShellBannerTest extends CommonWordSpec {

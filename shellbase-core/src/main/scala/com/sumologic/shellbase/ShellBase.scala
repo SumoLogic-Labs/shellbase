@@ -104,7 +104,7 @@ abstract class ShellBase(val name: String)
     * Name of the history file.
     */
   // NOTE(konstantin, 2017-27-02): This should probably be moved to $personalDir
-  def historyPath: File = new File("%s/.%s_history".format(System.getProperty("user.home"), name))
+  def historyPath: File = new File(s"${System.getProperty("user.home")}/.${name}_history")
 
   /**
     * Hide in help built-in commands.
@@ -352,12 +352,9 @@ abstract class ShellBase(val name: String)
   // -----------------------------------------------------------------------------------------------
 
   def getListParameter(cmdLine: CommandLine, name: String): Seq[String] = {
-    val str = cmdLine.getOptionValue(name)
-    if (str == null) {
-      return List[String]()
-    }
-
-    str.split(",")
+    Option(cmdLine.getOptionValue(name))
+      .map(_.split(',').toSeq)
+      .getOrElse(Seq.empty[String])
   }
 
   // -----------------------------------------------------------------------------------------------

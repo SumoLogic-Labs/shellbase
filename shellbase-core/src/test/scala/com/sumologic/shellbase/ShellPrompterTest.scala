@@ -24,10 +24,10 @@ import java.util.Date
 
 import jline.console.ConsoleReader
 import org.junit.runner.RunWith
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 import org.scalatestplus.mockito.MockitoSugar
 
 import scala.collection.mutable
@@ -194,7 +194,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
 
       answerQuestionWith("")
 
-      sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty), default = default) should equal(default)
+      sutWithMock.askQuestion(question, List(ShellPromptValidators.nonEmpty), default = Some(default)) should equal(default)
     }
 
     "throw exception if all validation fails" in {
@@ -229,7 +229,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
 
     "return default if answer doesn't answer" in {
       answerQuestionWith("")
-      sutWithMock.pickFromOptions("", Seq("a", "b", "c"), default = "b") should be("b")
+      sutWithMock.pickFromOptions("", Seq("a", "b", "c"), default = Some("b")) should be("b")
     }
 
     "return null if user says 0 and allowNoSelection is true" in {
@@ -291,6 +291,7 @@ class ShellPrompterTest extends CommonWordSpec with BeforeAndAfterEach with Mock
 
   private def answerQuestionWith(str1: String, str: String*): Unit = {
     when(mockReader.readLine(anyString, anyChar)).thenReturn(str1, str: _*)
+    when(mockReader.readLine(anyString, isNull[Char])).thenReturn(str1, str: _*)
   }
 
   private def feedCharacters(string: String): Unit = {

@@ -20,7 +20,7 @@ package com.sumologic.shellbase
 
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
+import org.scalatestplus.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class ShellCommandSetTest extends CommonWordSpec {

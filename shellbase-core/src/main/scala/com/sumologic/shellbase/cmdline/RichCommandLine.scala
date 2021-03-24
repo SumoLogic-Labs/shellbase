@@ -38,15 +38,12 @@ object RichCommandLine {
 
 class RichScalaOption[T](optn: Option[T]) {
 
-  private[cmdline] def exit(message: String): Unit = throw new ExitShellCommandException(message)
-
   def getOrExitWithMessage(message: String): T = {
     optn match {
       case Some(value) =>
         value
       case None =>
-        exit(message)
-        null.asInstanceOf[T]
+        throw new ExitShellCommandException(message)
     }
   }
 }
@@ -93,11 +90,9 @@ class RichCommandLine(cmdLine: CommandLine) {
   }
 
   private def getArg(arg: CommandLineArgument): Option[String] = {
-    val args = cmdLine.getArgs
-    if (args != null && args.length > arg.index) {
-      Some(args(arg.index))
-    } else {
-      arg.defaultValue
+    Option(cmdLine.getArgs) match {
+      case Some(args) if args.length > arg.index => Some(args(arg.index))
+      case _ => arg.defaultValue
     }
   }
 
@@ -233,7 +228,7 @@ class RichOptions(options: Options) {
     require(arg != null)
 
     if (arguments.exists(_.index == arg.index)) {
-      throw new IllegalArgumentException("Argument with index %d already defined!".format(arg.index))
+      throw new IllegalArgumentException(s"Argument with index ${arg.index} already defined!")
     }
 
     options match {
@@ -259,11 +254,11 @@ class RichOptions(options: Options) {
     import option._
 
     List(shortName, longName).foreach {
-      name => require(options.getOption(name) == null, "Option %s already defined!".format(name))
+      name => require(options.getOption(name) == null, s"Option $name already defined!")
     }
 
     val helpTextWithDefault = defaultValue match {
-      case Some(default) => "%s (default: %s)".format(helpText, default)
+      case Some(default) => s"$helpText (default: $default)"
       case None => helpText
     }
 
