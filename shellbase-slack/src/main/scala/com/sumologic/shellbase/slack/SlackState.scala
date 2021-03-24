@@ -18,14 +18,17 @@
  */
 package com.sumologic.shellbase.slack
 
-import com.flyberrycapital.slack.SlackClient
+import akka.actor.ActorSystem
+import slack.api.BlockingSlackApiClient
 
 trait SlackState {
-  def slackClient: Option[SlackClient]
+  def slackClient: Option[BlockingSlackApiClient]
 
   def slackChannel: Option[String]
 
   def slackChannels: List[String] = slackChannel.toList
 
   def slackOptions: Map[String, String] = Map()
+
+  def actorSystem: ActorSystem
 }

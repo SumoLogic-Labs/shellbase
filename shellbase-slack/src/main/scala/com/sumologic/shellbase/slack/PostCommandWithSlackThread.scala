@@ -32,10 +32,7 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
       var tsOpt: Option[String] = None
       retry(maxAttempts = 3, sleepTime = 1000) {
         for (msg <- slackMessage(commandPath, arguments)) {
-          sendSlackMessageIfConfigured(s"[$username] $msg") match {
-            case Some(postMessageResponse) => tsOpt = Some(postMessageResponse.ts)
-            case None => None
-          }
+          tsOpt = sendSlackMessageIfConfigured(s"[$username] $msg")
         }
         tsOpt
       }
@@ -53,17 +50,18 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
                                             commandResult: Boolean): Option[String] = {
     // if diffLocalToSlackUserNameMap has the local userName, use that value. Otherwise, use local userName as default
     val slackName = diffLocalToSlackUserNameMap.getOrElse(username, username)
-    val replyMessage = {
+    val shouldTagUser = commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute
+    val replyMessage: String = {
       if (commandResult) {
-        if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) s"Hey @${slackName}，command succeeded"
+        if (shouldTagUser) s"Hey @${slackName}，command succeeded"
         else "Command succeeded"
       } else {
-        if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) s"Hey @${slackName}，command failed"
+        if (shouldTagUser) s"Hey @${slackName}，command failed"
         else "Command failed"
       }
     }
     val linkName = {
-      if (commandExecuteTimeDuration >= commandNotifyUserTimeThresholdInMinute) Map("link_names" -> "1")
+      if (shouldTagUser) Map("link_names" -> "1")
       else Map.empty
     }
 
