@@ -7,20 +7,20 @@ Sumo Logic's Scala-based interactive shell framework
 
 ## Install / Download
 These are the components we provide:
-* `shellbase-core_2.11` contains everything you need to make a basic, working shell
-* `shellbase-slack_2.11` contains the necessary pieces to post your commands to Slack.
+* `shellbase-core_2.13` contains everything you need to make a basic, working shell
+* `shellbase-slack_2.13` contains the necessary pieces to post your commands to Slack.
 
 ```
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
-      <artifactId>shellbase-core_2.11</artifactId>
-      <version>1.5.4</version>
+      <artifactId>shellbase-core_2.13</artifactId>
+      <version>2.0.0</version>
     </dependency>
 
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
-      <artifactId>shellbase-slack_2.11</artifactId>
-      <version>1.5.4</version>
+      <artifactId>shellbase-slack_2.13</artifactId>
+      <version>2.0.0</version>
     </dependency>
 ```
 
@@ -48,7 +48,7 @@ To build project in default Scala version:
 
 To build project in any supported Scala version:
 ```
-./gradlew build -PscalaVersion=2.12.13
+./gradlew build -PscalaVersion=2.13.5
 ```
 
 For testing, change your consumer `pom.xml` or `gradle.properties` to depend on the `SNAPSHOT` version generated.
@@ -92,6 +92,7 @@ outside this list)
     ```
     ./gradlew build publish -PscalaVersion=2.11.12
     ./gradlew build publish -PscalaVersion=2.12.13
+    ./gradlew build publish -PscalaVersion=2.13.5
     ```
 5. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic, close and release your repo. 
 NOTE: If you had to login, reload the URL. It doesn't take you to the right page post-login
