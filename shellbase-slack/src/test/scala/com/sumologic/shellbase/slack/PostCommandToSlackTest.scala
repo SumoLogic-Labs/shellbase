@@ -18,8 +18,7 @@
  */
 package com.sumologic.shellbase.slack
 
-import com.flyberrycapital.slack.Methods.Chat
-import com.flyberrycapital.slack.SlackClient
+import akka.actor.ActorSystem
 import com.sumologic.shellbase.ShellCommand
 import org.apache.commons.cli.CommandLine
 import org.junit.runner.RunWith
@@ -28,6 +27,7 @@ import org.scalatestplus.junit.JUnitRunner
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers.{eq => matcher_eq, _}
 import org.scalatestplus.mockito.MockitoSugar
+import slack.api.BlockingSlackApiClient
 
 @RunWith(classOf[JUnitRunner])
 class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with MockitoSugar {
@@ -51,74 +51,72 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
     }
 
     "send the message when given correct setup" in {
-      val (_, chatClient) = createMockClient
+      val slackClient = createMockClient
       val channel = createAChannel
       sut.slackMessagingConfigured should be (true)
 
       sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
-      verify(chatClient, times(1)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
+      verifyCallToPost(slackClient, times(1), channel)
 
       sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
-      verify(chatClient, times(2)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
+      verifyCallToPost(slackClient, times(2), channel)
     }
 
     "send the message when multiple channels configured" in {
-      val (_, chatClient) = createMockClient
+      val slackClient = createMockClient
       val channels = createTwoChannels
       sut.slackMessagingConfigured should be (true)
 
       sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
       channels.foreach(channel =>
-        verify(chatClient, times(1)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
+        verifyCallToPost(slackClient, times(1), channel)
       )
 
       sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
       channels.foreach(channel =>
-        verify(chatClient, times(2)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
+        verifyCallToPost(slackClient, times(2), channel)
       )
     }
 
-
     "not send the message to filtered out channels when configured" in {
-      val (_, chatClient) = createMockClient
+      val slackClient = createMockClient
+      val channel = "#my_channel3"
       createTwoChannelsAndOneExcluded
       sut.slackMessagingConfigured should be (true)
 
       sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
-      verify(chatClient, times(0)).postMessage(matcher_eq("#my_channel3"), anyString(), anyObject[Map[String, String]]())
+      verifyCallToPost(slackClient, times(0), channel)
 
       sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
-      verify(chatClient, times(0)).postMessage(matcher_eq("#my_channel3"), anyString(), anyObject[Map[String, String]]())
+      verifyCallToPost(slackClient, times(0), channel)
     }
 
     "return an exception as text when thrown" in {
-      val (slackClient, _) = createMockClient
+      val slackClient = createMockClient
       val channel = createAChannel
       sut.slackMessagingConfigured should be (true)
 
-      when(slackClient.chat).thenThrow(new RuntimeException)
+      whenPostingToAnyChannel(slackClient).thenThrow(new RuntimeException)
 
       sut.postCommandToSlack(List.empty, List.empty) should be ('defined)
     }
 
     "retry and maybe eventually succeed" in {
-      val (slackClient, chatClient) = createMockClient
+      val slackClient = createMockClient
       val channel = createAChannel
       sut.slackMessagingConfigured should be (true)
 
-      when(slackClient.chat).thenThrow(new RuntimeException).thenReturn(chatClient)
+      whenPostingToAnyChannel(slackClient).thenThrow(new RuntimeException).thenReturn("hi")
 
       sut.postCommandToSlack(List.empty, List.empty) should be (None)
-      verify(chatClient, times(1)).postMessage(matcher_eq(channel), anyString(), anyObject[Map[String, String]]())
+      verifyCallToPost(slackClient, times(2), channel)
     }
   }
 
-  private def createMockClient: (SlackClient, Chat) = {
-    val client = mock[SlackClient]
-    val chat = mock[Chat]
+  private def createMockClient: BlockingSlackApiClient = {
+    val client = mock[BlockingSlackApiClient]
     when(mockState.slackClient).thenReturn(Some(client))
-    when(client.chat).thenReturn(chat)
-    (client, chat)
+    client
   }
 
   private def createAChannel: String = {
@@ -149,10 +147,8 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
     when(mockState.slackClient).thenReturn(None)
     when(mockState.slackChannel).thenReturn(None)
     when(mockState.slackChannels).thenReturn(None.toList)
-    when(mockState.slackOptions).thenReturn(new SlackState {
-      override def slackClient: Option[SlackClient] = ???
-      override def slackChannel: Option[String] = ???
-    }.slackOptions)
+    when(mockState.slackOptions).thenReturn(Map.empty[String, String])
+    when(mockState.actorSystem).thenReturn(mock[ActorSystem])
 
     sut = new ShellCommand("", "") with PostCommandToSlack {
       override protected val slackState: SlackState = mockState

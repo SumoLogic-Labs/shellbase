@@ -168,6 +168,6 @@ project(':shellbase-example') {
 project(':shellbase-slack') {
     dependencies {
         compile project(':shellbase-core')
-        compile "com.flyberrycapital:scala-slack_${scalaMajorVersion}:${scalaSlackVersion}"
+        compile "com.github.slack-scala-client:slack-scala-client_${scalaMajorVersion}:${scalaSlackClientVersion}"
     }
 }
