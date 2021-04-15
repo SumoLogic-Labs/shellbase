@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 Nothing right now.  We plan to drop support for Scala 2.11 at a future time.
 
+## [2.1.0] - 2021-04-15
+### Added
+- Added back support for Slack Attachments and Blocks
+
 ## [2.0.0] - 2021-03-25
 ### Added
 - Support for Scala 2.13
