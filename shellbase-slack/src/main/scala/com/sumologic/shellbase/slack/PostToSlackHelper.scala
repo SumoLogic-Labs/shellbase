@@ -18,6 +18,8 @@
  */
 package com.sumologic.shellbase.slack
 
+import slack.models.{Attachment, Block}
+
 /**
   * This provides utility to ShellCommands to post anything to Slack as part of the command
   */
@@ -31,12 +33,24 @@ trait PostToSlackHelper {
 
   def slackChannelFilter(channelName: String): Boolean = true
 
-  def sendSlackMessageIfConfigured(msg: String, additionalOptions: Map[String, String] = Map.empty): Option[String] = {
+  // NOTE: Normally we don't want to expose external dependencies classes as part of an interface, but both Attachment
+  // and Block are very well defined and very isolated.  So while package may change if we need to fork, it can be
+  // handled as a single-line replacement.
+  def sendSlackMessageIfConfigured(msg: String,
+                                   additionalOptions: Map[String, String] = Map.empty,
+                                   attachments: Option[Seq[Attachment]] = None,
+                                   blocks: Option[Seq[Block]] = None
+                                  ): Option[String] = {
+    require(!additionalOptions.contains("attachments"),
+      "`attachments` is a separate argument and can't be specified as part of additionalOptions")
+
+    require(!additionalOptions.contains("blocks"),
+      "`blocks` is a separate argument and can't be specified as part of additionalOptions")
+
     var message: Option[String] = None
     if (!excludedUsernames.contains(username)) {
       for (client <- slackState.slackClient;
            channel <- slackState.slackChannels.filter(slackChannelFilter)) {
-        // TODO: If someone has time, add support for `attachments` and `blocks`
         val username: Option[String] = additionalOptions.get("username")
         val asUser: Option[Boolean] = additionalOptions.get("as_user").map(_.toBoolean)
         val parse: Option[String] = additionalOptions.get("parse")
@@ -52,9 +66,9 @@ trait PostToSlackHelper {
 
 
         message = Some(client.postChatMessage(channelId = channel, text = msg, username = username, asUser = asUser,
-          parse = parse, linkNames = linkNames, unfurlLinks = unfurlLinks, unfurlMedia = unfurlMedia, iconUrl = iconUrl,
-          iconEmoji = iconEmoji, replaceOriginal = replaceOriginal, deleteOriginal = deleteOriginal,
-          threadTs = threadTs, replyBroadcast = replyBroadcast)(slackState.actorSystem))
+          parse = parse, linkNames = linkNames, attachments = attachments, blocks = blocks, unfurlLinks = unfurlLinks,
+          unfurlMedia = unfurlMedia, iconUrl = iconUrl, iconEmoji = iconEmoji, replaceOriginal = replaceOriginal,
+          deleteOriginal = deleteOriginal, threadTs = threadTs, replyBroadcast = replyBroadcast)(slackState.actorSystem))
       }
     }
 
