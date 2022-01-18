@@ -147,7 +147,6 @@ project(':shellbase-core') {
     dependencies {
         implementation "joda-time:joda-time:${jodaTimeVersion}"
         implementation "org.slf4j:slf4j-api:${slf4jVersion}"
-        implementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
         implementation "commons-cli:commons-cli:${commonsCliVersion}"
         implementation "commons-io:commons-io:${commonsIoVersion}"
         implementation "jline:jline:${jlineVersion}"
