@@ -8,9 +8,6 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
-        maven {
-            url "https://dl.bintray.com/ngbinh/maven"
-        }
     }
     dependencies {
         classpath "gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.15.0"
@@ -20,7 +17,6 @@ buildscript {
 allprojects {
     apply plugin: "java"
     apply plugin: "scala"
-    apply plugin: "maven"
     apply plugin: "maven-publish"
     apply plugin: "com.github.hierynomus.license"
     apply plugin: "signing"
@@ -39,9 +35,9 @@ allprojects {
     }
 
     dependencies {
-        testCompile "org.scalatest:scalatest_${scalaMajorVersion}:${scalatestVersion}"
-        testCompile "junit:junit:${junitVersion}"
-        testCompile "org.mockito:mockito-core:${mockitoVersion}"
+        testImplementation "org.scalatest:scalatest_${scalaMajorVersion}:${scalatestVersion}"
+        testImplementation "junit:junit:${junitVersion}"
+        testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     }
 
     compileScala {
@@ -149,25 +145,34 @@ subprojects {
 
 project(':shellbase-core') {
     dependencies {
-        compile "joda-time:joda-time:${jodaTimeVersion}"
-        compile "org.slf4j:slf4j-log4j12:${slf4jVersion}"
-        compile "commons-cli:commons-cli:${commonsCliVersion}"
-        compile "commons-io:commons-io:${commonsIoVersion}"
-        compile "jline:jline:${jlineVersion}"
-        compile "org.apache.velocity:velocity:${velocityVersion}"
-        compile "org.scala-lang:scala-library:${scalaMajorVersion}.${scalaMinorVersion}"
+        implementation "joda-time:joda-time:${jodaTimeVersion}"
+        implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+        implementation "org.slf4j:slf4j-log4j12:${slf4jVersion}"
+        implementation "commons-cli:commons-cli:${commonsCliVersion}"
+        implementation "commons-io:commons-io:${commonsIoVersion}"
+        implementation "jline:jline:${jlineVersion}"
+        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "org.scala-lang:scala-library:${scalaMajorVersion}.${scalaMinorVersion}"
     }
 }
 
 project(':shellbase-example') {
     dependencies {
-        compile project(':shellbase-core')
+        implementation project(':shellbase-core')
+        implementation "jline:jline:${jlineVersion}"
+        implementation "org.scala-lang:scala-library:${scalaMajorVersion}.${scalaMinorVersion}"
+        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "commons-cli:commons-cli:${commonsCliVersion}"
     }
 }
 
 project(':shellbase-slack') {
     dependencies {
-        compile project(':shellbase-core')
-        compile "com.github.slack-scala-client:slack-scala-client_${scalaMajorVersion}:${scalaSlackClientVersion}"
+        implementation project(':shellbase-core')
+        implementation "com.github.slack-scala-client:slack-scala-client_${scalaMajorVersion}:${scalaSlackClientVersion}"
+        implementation "jline:jline:${jlineVersion}"
+        implementation "org.slf4j:slf4j-api:${slf4jVersion}"
+        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "commons-cli:commons-cli:${commonsCliVersion}"
     }
 }
