@@ -48,7 +48,7 @@ To build project in default Scala version:
 
 To build project in any supported Scala version:
 ```
-./gradlew build -PscalaVersion=2.13.5
+./gradlew build -PscalaVersion=2.13.8
 ```
 
 For testing, change your consumer `pom.xml` or `gradle.properties` to depend on the `SNAPSHOT` version generated.
@@ -91,8 +91,8 @@ outside this list)
 4. Perform a release in selected Scala versions:
     ```
     ./gradlew build publish -PscalaVersion=2.11.12
-    ./gradlew build publish -PscalaVersion=2.12.13
-    ./gradlew build publish -PscalaVersion=2.13.5
+    ./gradlew build publish -PscalaVersion=2.12.15
+    ./gradlew build publish -PscalaVersion=2.13.8
     ```
 5. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic, close and release your repo. 
 NOTE: If you had to login, reload the URL. It doesn't take you to the right page post-login
