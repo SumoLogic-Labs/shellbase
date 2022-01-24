@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 Nothing right now.  We plan to drop support for Scala 2.11 at a future time.
 
+## [2.1.1] - 2022-01-24
+### Changed
+- Upgraded Gradle to 7.2
+- Removed slf4j-log4j dependency
+- Scala versions upgraded
+
 ## [2.1.0] - 2021-04-15
 ### Added
 - Added back support for Slack Attachments and Blocks
