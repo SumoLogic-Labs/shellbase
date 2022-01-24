@@ -14,13 +14,13 @@ These are the components we provide:
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-core_2.13</artifactId>
-      <version>2.1.0</version>
+      <version>2.1.1</version>
     </dependency>
 
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-slack_2.13</artifactId>
-      <version>2.1.0</version>
+      <version>2.1.1</version>
     </dependency>
 ```
 
@@ -81,23 +81,30 @@ outside this list)
         signing.gnupg.passphrase=${password_for_imported_sumoapi_key}
         ```
 2. Remove `-SNAPSHOT` suffix from `version` in `build.gradle`
-3. Make a release branch with Scala version and project version, ex. `shellbase-1.5.5`:
+3. Make a release branch with Scala version and project version, ex. `shellbase-2.1.2`:
     ```
-    export RELEASE_VERSION=shellbase-1.5.5
+    export RELEASE_VERSION=shellbase-2.1.2
     git checkout -b ${RELEASE_VERSION}
     git add build.gradle
     git commit -m "[release] ${RELEASE_VERSION}"
     ```
 4. Perform a release in selected Scala versions:
     ```
-    ./gradlew build publish -PscalaVersion=2.11.12
-    ./gradlew build publish -PscalaVersion=2.12.15
-    ./gradlew build publish -PscalaVersion=2.13.8
+    ./gradlew shellbase-example:publish -PscalaVersion=2.11.12
+    ./gradlew shellbase-slack:publish -PscalaVersion=2.11.12
+    ./gradlew shellbase-core:publish -PscalaVersion=2.11.12
+    ./gradlew shellbase-example:publish -PscalaVersion=2.12.15
+    ./gradlew shellbase-slack:publish -PscalaVersion=2.12.15
+    ./gradlew shellbase-core:publish -PscalaVersion=2.12.15
+    ./gradlew shellbase-example:publish -PscalaVersion=2.13.8
+    ./gradlew shellbase-slack:publish -PscalaVersion=2.13.8
+    ./gradlew shellbase-core:publish -PscalaVersion=2.13.8
+
     ```
 5. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic, close and release your repo. 
 NOTE: If you had to login, reload the URL. It doesn't take you to the right page post-login
 6. Update the `README.md` and `CHANGELOG.md` with the new version and set upcoming snapshot `version` 
-in `build.gradle`, ex. `1.5.4-SNAPSHOT` 
+in `build.gradle`, ex. `2.1.3-SNAPSHOT` 
 7. Commit the change and push as a PR:
     ```
     git add build.gradle README.md CHANGELOG.md
