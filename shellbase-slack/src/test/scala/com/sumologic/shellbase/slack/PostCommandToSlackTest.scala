@@ -147,8 +147,8 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
     when(mockState.slackClient).thenReturn(None)
     when(mockState.slackChannel).thenReturn(None)
     when(mockState.slackChannels).thenReturn(None.toList)
-    when(mockState.slackOptions).thenReturn(Map.empty[String, String])
     when(mockState.actorSystem).thenReturn(mock[ActorSystem])
+    when(mockState.userNameToBeUsedWhenPosting).thenReturn("MY_SHELL")
 
     sut = new ShellCommand("", "") with PostCommandToSlack {
       override protected val slackState: SlackState = mockState
