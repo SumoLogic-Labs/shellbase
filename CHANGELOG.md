@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 Nothing right now.  We plan to drop support for Scala 2.11 at a future time.
 
+## [2.2.0] - 2022-02-01
+### Changed
+- SlackState.userNameToBeUsedWhenPosting introduced in favor of slackOptions (#64)
+
 ## [2.1.1] - 2022-01-24
 ### Changed
 - Upgraded Gradle to 7.2
