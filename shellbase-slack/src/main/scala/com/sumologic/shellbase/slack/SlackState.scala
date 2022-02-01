@@ -30,5 +30,5 @@ trait SlackState {
 
   def actorSystem: ActorSystem
 
-  def userNameToBeUsedWhenPosting: String
+  def userNameToBeUsedWhenPosting: String = "shell"
 }
