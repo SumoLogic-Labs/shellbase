@@ -28,7 +28,7 @@ trait SlackState {
 
   def slackChannels: List[String] = slackChannel.toList
 
-  def slackOptions: Map[String, String] = Map()
-
   def actorSystem: ActorSystem
+
+  def userNameToBeUsedWhenPosting: String = "shell"
 }

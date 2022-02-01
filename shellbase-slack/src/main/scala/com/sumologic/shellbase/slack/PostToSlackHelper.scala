@@ -26,7 +26,7 @@ import slack.models.{Attachment, Block}
 trait PostToSlackHelper {
   protected val slackState: SlackState
 
-  protected val username: String = System.getProperty("user.name", "unknown")
+  protected def username: String = System.getProperty("user.name", "unknown")
   protected val excludedUsernames: Set[String] = Set.empty
 
   def slackMessagingConfigured: Boolean = slackState.slackClient.isDefined && slackState.slackChannels.nonEmpty
@@ -52,6 +52,7 @@ trait PostToSlackHelper {
       for (client <- slackState.slackClient;
            channel <- slackState.slackChannels.filter(slackChannelFilter)) {
         val username: Option[String] = additionalOptions.get("username")
+          .orElse(Some(slackState.userNameToBeUsedWhenPosting))
         val asUser: Option[Boolean] = additionalOptions.get("as_user").map(_.toBoolean)
         val parse: Option[String] = additionalOptions.get("parse")
         val linkNames: Option[String] = additionalOptions.get("link_names")
