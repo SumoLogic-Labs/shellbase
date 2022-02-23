@@ -10,7 +10,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath "gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.15.0"
+        classpath "gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1"
     }
 }
 
@@ -63,6 +63,12 @@ allprojects {
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
     }
+
+    license {
+        header rootProject.file('src/etc/header.txt')
+        strictCheck true
+        exclude "**/warning.txt"
+    }
 }
 
 subprojects {
@@ -80,12 +86,6 @@ subprojects {
         from javadoc
         from scaladoc
         archiveClassifier.set('javadoc')
-    }
-
-    license {
-        header rootProject.file('src/etc/header.txt')
-        strictCheck true
-        exclude "**/warning.txt"
     }
 
     publishing {
