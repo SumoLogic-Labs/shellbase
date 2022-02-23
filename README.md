@@ -1,7 +1,3 @@
-[![Build Status](https://travis-ci.org/SumoLogic/shellbase.svg?branch=master)](https://travis-ci.org/SumoLogic/shellbase)
-[![codecov.io](https://codecov.io/github/SumoLogic/shellbase/coverage.svg?branch=master)](https://codecov.io/github/SumoLogic/shellbase?branch=master)
-[![Join the chat at https://gitter.im/SumoLogic/shellbase](https://badges.gitter.im/SumoLogic/shellbase.svg)](https://gitter.im/SumoLogic/shellbase?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 # shellbase
 Sumo Logic's Scala-based interactive shell framework
 
