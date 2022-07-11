@@ -46,7 +46,9 @@ abstract class ShellCommand(val name: String,
 
   protected def currentCommand: String = _currentCommand.get()
 
-  def executeLine(arguments: List[String], commandPath: List[String] = List()): Boolean = {
+  def executeLine(argumentsInput: List[String], commandPath: List[String] = List()): Boolean = {
+    val (arguments, comments) = extractPossibleComments(argumentsInput)
+
     _currentCommand.set {
       val cmd = commandPath.mkString(" ").trim
       val args = arguments.mkString(" ").trim
@@ -71,7 +73,7 @@ abstract class ShellCommand(val name: String,
         case None => {
           // do NOT block the command from executing
           Future {
-            slackTsOpt = postCommandToSlack(commandPath, arguments)
+            slackTsOpt = postCommandToSlack(commandPath, arguments, comments)
           }
 
           commandResult = execute(cmdLine)
@@ -119,6 +121,17 @@ abstract class ShellCommand(val name: String,
     }
   }
 
+  // VisibleForTesting
+  private[shellbase] def extractPossibleComments(arguments: List[String]): (List[String], Option[String]) = {
+    val argumentStartingAComment = arguments.indexWhere(_.startsWith("#"))
+    if (argumentStartingAComment > -1) {
+      val split = arguments.splitAt(argumentStartingAComment)
+      (split._1, Some(split._2.mkString(" ").substring(1).trim))
+    } else {
+      (arguments, None)
+    }
+  }
+
   /**
     * Execute the command. The command line passed in contains everything the user specified - options
     * and other arguments. Returns true if the command succeeded, false otherwise.
@@ -143,7 +156,7 @@ abstract class ShellCommand(val name: String,
     }
   }
 
-  def postCommandToSlack(cmdPath: List[String], args: List[String]): Option[String] = {
+  def postCommandToSlack(cmdPath: List[String], args: List[String], comments: Option[String]): Option[String] = {
     None
   }
 
