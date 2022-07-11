@@ -16,7 +16,7 @@ buildscript {
     // NOTE(mccartney, 2022-07-11): Keeping these versions here works with Dependabot. Moving to gradle.properties does not.
     ext.akkaVersion = '2.5.25'
     ext.awsSdkVersion = '1.11.980'
-    ext.commonsCliVersion = '1.4'
+    ext.commonsCliVersion = '1.5.0'
     ext.commonsIoVersion = '2.8.0'
     ext.jlineVersion = '2.14.6'
     ext.jodaTimeVersion = '2.10.10'
