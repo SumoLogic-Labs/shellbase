@@ -27,11 +27,12 @@ trait PostCommandWithSlackThread extends PostCommandToSlack {
   // 5 minutes as default
   protected val commandNotifyUserTimeThresholdInMinute: Int = 5
 
-  override def postCommandToSlack(commandPath: List[String], arguments: List[String]): Option[String] = {
+  override def postCommandToSlack(commandPath: List[String], arguments: List[String],
+                                  comments: Option[String]): Option[String] = {
     try {
       var tsOpt: Option[String] = None
       retry(maxAttempts = 3, sleepTime = 1000) {
-        for (msg <- slackMessage(commandPath, arguments)) {
+        for (msg <- slackMessage(commandPath, arguments, comments)) {
           tsOpt = sendSlackMessageIfConfigured(s"[$username] $msg")
         }
         tsOpt

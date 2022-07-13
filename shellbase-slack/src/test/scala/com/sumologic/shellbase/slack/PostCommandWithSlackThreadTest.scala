@@ -34,19 +34,19 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
 
   "PostCommandWithSlackThreads" should {
     "do nothing when no client or channel is provided" in {
-      sut.postCommandToSlack(List.empty, List.empty) should be(None)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be(None)
       sut.slackMessagingConfigured should be(false)
     }
 
     "do nothing with a client but no channel" in {
       createMockClient
-      sut.postCommandToSlack(List.empty, List.empty) should be(None)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be(None)
       sut.slackMessagingConfigured should be(false)
     }
 
     "do nothing with a channel but no client" in {
       createAChannel
-      sut.postCommandToSlack(List.empty, List.empty) should be(None)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be(None)
       sut.slackMessagingConfigured should be(false)
     }
 
@@ -55,10 +55,10 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
       val channel = createAChannel
       sut.slackMessagingConfigured should be(true)
 
-      sut.postCommandToSlack(List("Hi"), List.empty) should be(Some(ts))
+      sut.postCommandToSlack(List("Hi"), List.empty, None) should be(Some(ts))
       verifyCallToPost(slackClient, times(1), channel)
 
-      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be(Some(ts))
+      sut.postCommandToSlack(List("Hi"), List("with", "params"), None) should be(Some(ts))
       verifyCallToPost(slackClient, times(2), channel)
     }
 
@@ -67,12 +67,12 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
       val channels = createTwoChannels
       sut.slackMessagingConfigured should be(true)
 
-      sut.postCommandToSlack(List("Hi"), List.empty) should be(Some(ts))
+      sut.postCommandToSlack(List("Hi"), List.empty, None) should be(Some(ts))
       channels.foreach(channel =>
         verifyCallToPost(slackClient, times(1), channel)
       )
 
-      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be(Some(ts))
+      sut.postCommandToSlack(List("Hi"), List("with", "params"), None) should be(Some(ts))
       channels.foreach(channel =>
         verifyCallToPost(slackClient, times(2), channel)
       )
@@ -84,10 +84,10 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
       createTwoChannelsAndOneFilteredOut
       sut.slackMessagingConfigured should be(true)
 
-      sut.postCommandToSlack(List("Hi"), List.empty) should be(Some(ts))
+      sut.postCommandToSlack(List("Hi"), List.empty, None) should be(Some(ts))
       verifyCallToPost(slackClient, times(0), channel)
 
-      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be(Some(ts))
+      sut.postCommandToSlack(List("Hi"), List("with", "params"), None) should be(Some(ts))
       verifyCallToPost(slackClient, times(0), channel)
     }
 
@@ -98,7 +98,7 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
 
       whenPostingToChannel(slackClient, channel).thenThrow(new RuntimeException)
 
-      sut.postCommandToSlack(List.empty, List.empty) should be(None)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be(None)
     }
 
     "retry and maybe eventually succeed" in {
@@ -108,7 +108,7 @@ class PostCommandWithSlackThreadTest extends CommonWordSpec with BeforeAndAfterE
 
       whenPostingToChannel(slackClient, channel).thenThrow(new RuntimeException).thenReturn(ts)
 
-      sut.postCommandToSlack(List.empty, List.empty) should be(Some(ts))
+      sut.postCommandToSlack(List.empty, List.empty, None) should be(Some(ts))
       verifyCallToPost(slackClient, times(2), channel)
     }
 

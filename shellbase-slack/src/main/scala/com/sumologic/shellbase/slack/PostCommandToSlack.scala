@@ -25,10 +25,11 @@ import com.sumologic.shellbase.ShellCommand
   */
 trait PostCommandToSlack extends ShellCommand with PostToSlackHelper {
 
-  override def postCommandToSlack(commandPath: List[String], arguments: List[String]): Option[String] = {
+  override def postCommandToSlack(commandPath: List[String], arguments: List[String],
+                                  comments: Option[String]): Option[String] = {
     try {
       retry(maxAttempts = 3, sleepTime = 1000) {
-        for (msg <- slackMessage(commandPath, arguments)) {
+        for (msg <- slackMessage(commandPath, arguments, comments)) {
           sendSlackMessageIfConfigured(s"[$username] $msg")
         }
         None
@@ -42,15 +43,19 @@ trait PostCommandToSlack extends ShellCommand with PostToSlackHelper {
     }
   }
 
-  protected def slackMessage(commandPath: List[String], arguments: List[String]): Option[String] = {
+  // VisibleForTesting
+  protected[slack] def slackMessage(commandPath: List[String], arguments: List[String],
+                             comments: Option[String]): Option[String] = {
     val cmdPath = commandPath.mkString(" ").trim
     val args = arguments.mkString(" ").trim
 
-    if (args.isEmpty) {
-      Some(s"`$cmdPath`")
-    } else {
-      Some(s"`$cmdPath $args`")
-    }
+    Some(List(
+      Some("`"),
+      Some(cmdPath),
+      if (args.isEmpty) None else Some(s" $args"),
+      Some("`"),
+      comments.map(c => s"\n$c")
+    ).flatten.mkString(""))
   }
 
   private def retry[T](maxAttempts: Int, sleepTime: Long)(f: => T): T = {

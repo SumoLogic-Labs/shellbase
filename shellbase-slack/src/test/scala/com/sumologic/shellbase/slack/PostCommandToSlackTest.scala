@@ -34,19 +34,19 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
 
   "PostCommandToSlack" should {
     "do nothing when no client or channel is provided" in {
-      sut.postCommandToSlack(List.empty, List.empty) should be (None)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be (None)
       sut.slackMessagingConfigured should be (false)
     }
 
     "do nothing with a client but no channel" in {
       createMockClient
-      sut.postCommandToSlack(List.empty, List.empty) should be (None)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be (None)
       sut.slackMessagingConfigured should be (false)
     }
 
     "do nothing with a channel but no client" in {
       createAChannel
-      sut.postCommandToSlack(List.empty, List.empty) should be (None)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be (None)
       sut.slackMessagingConfigured should be (false)
     }
 
@@ -55,10 +55,10 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
       val channel = createAChannel
       sut.slackMessagingConfigured should be (true)
 
-      sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
+      sut.postCommandToSlack(List("Hi"), List.empty, None) should be (None)
       verifyCallToPost(slackClient, times(1), channel)
 
-      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
+      sut.postCommandToSlack(List("Hi"), List("with", "params"), None) should be (None)
       verifyCallToPost(slackClient, times(2), channel)
     }
 
@@ -67,12 +67,12 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
       val channels = createTwoChannels
       sut.slackMessagingConfigured should be (true)
 
-      sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
+      sut.postCommandToSlack(List("Hi"), List.empty, None) should be (None)
       channels.foreach(channel =>
         verifyCallToPost(slackClient, times(1), channel)
       )
 
-      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
+      sut.postCommandToSlack(List("Hi"), List("with", "params"), None) should be (None)
       channels.foreach(channel =>
         verifyCallToPost(slackClient, times(2), channel)
       )
@@ -84,10 +84,10 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
       createTwoChannelsAndOneExcluded
       sut.slackMessagingConfigured should be (true)
 
-      sut.postCommandToSlack(List("Hi"), List.empty) should be (None)
+      sut.postCommandToSlack(List("Hi"), List.empty, None) should be (None)
       verifyCallToPost(slackClient, times(0), channel)
 
-      sut.postCommandToSlack(List("Hi"), List("with", "params")) should be (None)
+      sut.postCommandToSlack(List("Hi"), List("with", "params"), None) should be (None)
       verifyCallToPost(slackClient, times(0), channel)
     }
 
@@ -98,7 +98,7 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
 
       whenPostingToAnyChannel(slackClient).thenThrow(new RuntimeException)
 
-      sut.postCommandToSlack(List.empty, List.empty) should be ('defined)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be ('defined)
     }
 
     "retry and maybe eventually succeed" in {
@@ -108,8 +108,21 @@ class PostCommandToSlackTest extends CommonWordSpec with BeforeAndAfterEach with
 
       whenPostingToAnyChannel(slackClient).thenThrow(new RuntimeException).thenReturn("hi")
 
-      sut.postCommandToSlack(List.empty, List.empty) should be (None)
+      sut.postCommandToSlack(List.empty, List.empty, None) should be (None)
       verifyCallToPost(slackClient, times(2), channel)
+    }
+
+    "format the Slack message" in {
+      // given
+      createMockClient
+      createAChannel
+      sut.slackMessagingConfigured should be (true)
+
+      // whens & tests
+      sut.slackMessage(List("code", "show", "version"), List("--when", "now"), None) shouldBe(
+        Some("`code show version --when now`"))
+      sut.slackMessage(List("code", "show", "version"), List("--when", "now"), Some("really needed")) shouldBe(
+        Some("`code show version --when now`\nreally needed"))
     }
   }
 
