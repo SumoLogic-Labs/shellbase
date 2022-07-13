@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 Nothing right now.  We plan to drop support for Scala 2.11 at a future time.
 
+## [3.0.0] - 2022-07-13
+### Changed
+- added support for comments at the end of the command line, which resulted
+  in changed interface for `postCommandToSlack` and `slackMessage` methods
+- Dependency version bump
+
 ## [2.2.0] - 2022-02-01
 ### Changed
 - SlackState.userNameToBeUsedWhenPosting introduced in favor of slackOptions (#64)
