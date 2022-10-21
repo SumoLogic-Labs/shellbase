@@ -21,7 +21,7 @@ buildscript {
     ext.jlineVersion = '2.14.6'
     ext.jodaTimeVersion = '2.12.0'
     ext.junitVersion = '4.13.2'
-    ext.mockitoVersion = '4.8.0'
+    ext.mockitoVersion = '4.8.1'
     ext.scalaSlackClientVersion = '0.2.14'
     ext.scalatestVersion = '3.0.9'
     ext.slf4jVersion = '2.0.3'
