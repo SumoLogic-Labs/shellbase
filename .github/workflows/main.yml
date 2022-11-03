@@ -27,16 +27,10 @@ jobs:
         with:
           arguments: |
               build          
-              -PscalaVersion=2.12.15
+              -PscalaVersion=2.12.17
       - name: build 2.13
         uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
         with:
           arguments: |
               build          
-              -PscalaVersion=2.13.8
-      - name: build 2.13
-        uses: gradle/gradle-build-action@937999e9cc2425eddc7fd62d1053baf041147db7
-        with:
-          arguments: |
-              build          
-              -PscalaVersion=2.11.12
+              -PscalaVersion=2.13.10
