@@ -44,7 +44,7 @@ To build project in default Scala version:
 
 To build project in any supported Scala version:
 ```
-./gradlew build -PscalaVersion=2.13.8
+./gradlew build -PscalaVersion=2.13.10
 ```
 
 For testing, change your consumer `pom.xml` or `gradle.properties` to depend on the `SNAPSHOT` version generated.
@@ -86,15 +86,12 @@ outside this list)
     ```
 4. Perform a release in selected Scala versions:
     ```
-    ./gradlew shellbase-example:publish -PscalaVersion=2.11.12
-    ./gradlew shellbase-slack:publish -PscalaVersion=2.11.12
-    ./gradlew shellbase-core:publish -PscalaVersion=2.11.12
-    ./gradlew shellbase-example:publish -PscalaVersion=2.12.15
-    ./gradlew shellbase-slack:publish -PscalaVersion=2.12.15
-    ./gradlew shellbase-core:publish -PscalaVersion=2.12.15
-    ./gradlew shellbase-example:publish -PscalaVersion=2.13.8
-    ./gradlew shellbase-slack:publish -PscalaVersion=2.13.8
-    ./gradlew shellbase-core:publish -PscalaVersion=2.13.8
+    ./gradlew shellbase-example:publish -PscalaVersion=2.12.17
+    ./gradlew shellbase-slack:publish -PscalaVersion=2.12.17
+    ./gradlew shellbase-core:publish -PscalaVersion=2.12.17
+    ./gradlew shellbase-example:publish -PscalaVersion=2.13.10
+    ./gradlew shellbase-slack:publish -PscalaVersion=2.13.10
+    ./gradlew shellbase-core:publish -PscalaVersion=2.13.10
 
     ```
 5. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic, close and release your repo. 
