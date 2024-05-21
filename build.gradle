@@ -17,7 +17,7 @@ buildscript {
     ext.commonsCliVersion = '1.5.0'
     ext.commonsIoVersion = '2.15.1'
     ext.jlineVersion = '2.14.6'
-    ext.jodaTimeVersion = '2.12.2'
+    ext.jodaTimeVersion = '2.12.5'
     ext.junitVersion = '4.13.2'
     ext.mockitoVersion = '4.8.1'
     ext.scalaSlackClientVersion = '0.4.0'
