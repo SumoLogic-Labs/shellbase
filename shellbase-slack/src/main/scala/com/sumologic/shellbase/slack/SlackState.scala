@@ -18,7 +18,7 @@
  */
 package com.sumologic.shellbase.slack
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import slack.api.BlockingSlackApiClient
 
 trait SlackState {
