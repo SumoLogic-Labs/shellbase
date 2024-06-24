@@ -10,13 +10,13 @@ These are the components we provide:
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-core_2.13</artifactId>
-      <version>3.0.0</version>
+      <version>4.0.0</version>
     </dependency>
 
     <dependency>
       <groupId>com.sumologic.shellbase</groupId>
       <artifactId>shellbase-slack_2.13</artifactId>
-      <version>3.0.0</version>
+      <version>4.0.0</version>
     </dependency>
 ```
 
