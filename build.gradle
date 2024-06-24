@@ -23,7 +23,7 @@ buildscript {
     ext.scalaSlackClientVersion = '0.4.0'
     ext.scalatestVersion = '3.0.9'
     ext.slf4jVersion = '2.0.13'
-    ext.velocityVersion = '1.7'
+    ext.velocityVersion = '2.3'
 }
 
 allprojects {
@@ -36,13 +36,12 @@ allprojects {
     group = "com.sumologic.shellbase"
     description = "Sumo Logic's Scala-based interactive shell framework"
 
-    version = '3.0.0'
+    version = '4.0.0'
 
     sourceCompatibility = javaSourceVersion
     targetCompatibility = javaTargetVersion
 
     repositories {
-        jcenter()
         mavenCentral()
     }
 
@@ -162,7 +161,7 @@ project(':shellbase-core') {
         implementation "commons-cli:commons-cli:${commonsCliVersion}"
         implementation "commons-io:commons-io:${commonsIoVersion}"
         implementation "jline:jline:${jlineVersion}"
-        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "org.apache.velocity:velocity-engine-core:${velocityVersion}"
         implementation "org.scala-lang:scala-library:${scalaMajorVersion}.${scalaMinorVersion}"
     }
 }
@@ -172,7 +171,7 @@ project(':shellbase-example') {
         implementation project(':shellbase-core')
         implementation "jline:jline:${jlineVersion}"
         implementation "org.scala-lang:scala-library:${scalaMajorVersion}.${scalaMinorVersion}"
-        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "org.apache.velocity:velocity-engine-core:${velocityVersion}"
         implementation "commons-cli:commons-cli:${commonsCliVersion}"
     }
 }
@@ -183,7 +182,7 @@ project(':shellbase-slack') {
         implementation "com.github.slack-scala-client:slack-scala-client_${scalaMajorVersion}:${scalaSlackClientVersion}"
         implementation "jline:jline:${jlineVersion}"
         implementation "org.slf4j:slf4j-api:${slf4jVersion}"
-        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "org.apache.velocity:velocity-engine-core:${velocityVersion}"
         implementation "commons-cli:commons-cli:${commonsCliVersion}"
     }
 }
