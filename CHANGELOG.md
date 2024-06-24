@@ -6,6 +6,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 Nothing right now.  We plan to drop support for Scala 2.11 at a future time.
 
+## [4.0.0] - 2024-06-24
+### Changed
+- Dependency version bump, incl. Velocity
+- Dropped support for Scala 2.11
+
 ## [3.0.0] - 2022-07-13
 ### Changed
 - added support for comments at the end of the command line, which resulted
