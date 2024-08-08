@@ -22,7 +22,7 @@ buildscript {
     ext.mockitoVersion = '4.8.1'
     ext.scalaSlackClientVersion = '0.4.0'
     ext.scalatestVersion = '3.0.9'
-    ext.slf4jVersion = '2.0.13'
+    ext.slf4jVersion = '2.0.15'
     ext.velocityVersion = '2.3'
 }
 
