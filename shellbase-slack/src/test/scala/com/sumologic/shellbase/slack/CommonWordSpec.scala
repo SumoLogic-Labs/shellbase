@@ -18,7 +18,7 @@
  */
 package com.sumologic.shellbase.slack
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import org.mockito.ArgumentMatchers.{eq => matcher_eq, _}
 import org.mockito.Mockito.{verify, when}
 import org.mockito.stubbing.OngoingStubbing
