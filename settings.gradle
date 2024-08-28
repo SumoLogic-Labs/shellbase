@@ -1,4 +1,4 @@
-rootProject.name = 'all'
+rootProject.name = 'shellbase'
 include 'shellbase-core', 'shellbase-example', 'shellbase-slack'
 
 determineAndSetScalaVersion()

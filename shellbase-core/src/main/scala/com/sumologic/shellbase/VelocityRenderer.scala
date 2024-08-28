@@ -20,11 +20,11 @@ package com.sumologic.shellbase
 
 import java.io._
 import java.util.Properties
-
 import org.apache.commons.io.IOUtils
 import org.apache.velocity.VelocityContext
 import org.apache.velocity.app.{Velocity, VelocityEngine}
 
+import java.util
 import scala.collection.JavaConverters._
 
 object VelocityRenderer {
@@ -62,7 +62,7 @@ object VelocityRenderer {
   }
 
   def createScriptFromTemplate(scriptResource: String,
-                               variables: Map[AnyRef, AnyRef] = Map[AnyRef, AnyRef]()): File = {
+                               variables: Map[String, AnyRef] = Map[String, AnyRef]()): File = {
     val engine = new VelocityEngine()
     engine.setProperty("resource.loader", "class")
     engine.setProperty("class.resource.loader.description", "Velocity Classpath Resource Loader")
@@ -74,7 +74,7 @@ object VelocityRenderer {
 
     val tempFile = File.createTempFile(".tmp", ".sh")
 
-    val modifiableVariables = new java.util.HashMap[AnyRef, AnyRef]()
+    val modifiableVariables: util.HashMap[String, AnyRef] = new java.util.HashMap[String, AnyRef]()
     modifiableVariables.asScala ++= variables
 
     val writer = new FileWriter(tempFile)

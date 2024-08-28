@@ -14,16 +14,16 @@ buildscript {
     }
 
     // NOTE(mccartney, 2022-07-11): Keeping these versions here works with Dependabot. Moving to gradle.properties does not.
-    ext.commonsCliVersion = '1.5.0'
-    ext.commonsIoVersion = '2.15.1'
+    ext.commonsCliVersion = '1.8.0'
+    ext.commonsIoVersion = '2.16.1'
     ext.jlineVersion = '2.14.6'
-    ext.jodaTimeVersion = '2.12.5'
+    ext.jodaTimeVersion = '2.12.7'
     ext.junitVersion = '4.13.2'
     ext.mockitoVersion = '4.8.1'
     ext.scalaSlackClientVersion = '1.0.0'
     ext.scalatestVersion = '3.0.9'
-    ext.slf4jVersion = '2.0.9'
-    ext.velocityVersion = '1.7'
+    ext.slf4jVersion = '2.0.13'
+    ext.velocityVersion = '2.3'
 }
 
 allprojects {
@@ -36,13 +36,12 @@ allprojects {
     group = "com.sumologic.shellbase"
     description = "Sumo Logic's Scala-based interactive shell framework"
 
-    version = '3.0.0'
+    version = '4.0.1-SNAPSHOT'
 
     sourceCompatibility = javaSourceVersion
     targetCompatibility = javaTargetVersion
 
     repositories {
-        jcenter()
         mavenCentral()
     }
 
@@ -162,7 +161,7 @@ project(':shellbase-core') {
         implementation "commons-cli:commons-cli:${commonsCliVersion}"
         implementation "commons-io:commons-io:${commonsIoVersion}"
         implementation "jline:jline:${jlineVersion}"
-        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "org.apache.velocity:velocity-engine-core:${velocityVersion}"
         implementation "org.scala-lang:scala-library:${scalaMajorVersion}.${scalaMinorVersion}"
     }
 }
@@ -172,7 +171,7 @@ project(':shellbase-example') {
         implementation project(':shellbase-core')
         implementation "jline:jline:${jlineVersion}"
         implementation "org.scala-lang:scala-library:${scalaMajorVersion}.${scalaMinorVersion}"
-        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "org.apache.velocity:velocity-engine-core:${velocityVersion}"
         implementation "commons-cli:commons-cli:${commonsCliVersion}"
     }
 }
@@ -183,7 +182,7 @@ project(':shellbase-slack') {
         implementation "com.github.slack-scala-client:slack-scala-client_${scalaMajorVersion}:${scalaSlackClientVersion}"
         implementation "jline:jline:${jlineVersion}"
         implementation "org.slf4j:slf4j-api:${slf4jVersion}"
-        implementation "org.apache.velocity:velocity:${velocityVersion}"
+        implementation "org.apache.velocity:velocity-engine-core:${velocityVersion}"
         implementation "commons-cli:commons-cli:${commonsCliVersion}"
     }
 }
