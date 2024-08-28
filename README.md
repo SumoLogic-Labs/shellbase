@@ -86,12 +86,12 @@ outside this list)
     ```
 4. Perform a release in selected Scala versions:
     ```
-    ./gradlew shellbase-example:publish -PscalaVersion=2.12.17
-    ./gradlew shellbase-slack:publish -PscalaVersion=2.12.17
-    ./gradlew shellbase-core:publish -PscalaVersion=2.12.17
-    ./gradlew shellbase-example:publish -PscalaVersion=2.13.10
-    ./gradlew shellbase-slack:publish -PscalaVersion=2.13.10
-    ./gradlew shellbase-core:publish -PscalaVersion=2.13.10
+    ./gradlew shellbase-example:publish -PscalaVersion=2.12.19
+    ./gradlew shellbase-slack:publish -PscalaVersion=2.12.19
+    ./gradlew shellbase-core:publish -PscalaVersion=2.12.19
+    ./gradlew shellbase-example:publish -PscalaVersion=2.13.14
+    ./gradlew shellbase-slack:publish -PscalaVersion=2.13.14
+    ./gradlew shellbase-core:publish -PscalaVersion=2.13.14
 
     ```
 5. Go to https://oss.sonatype.org/index.html#stagingRepositories, search for com.sumologic, close and release your repo. 
