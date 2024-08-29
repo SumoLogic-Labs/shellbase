@@ -4,7 +4,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-Nothing right now.  We plan to drop support for Scala 2.11 at a future time.
+Nothing right now.
+
+## [5.0.0] - 2024-08-28
+### Changed
+- Switced over to Pekko instead of Akka
+- ... as a consequence of upgrading to slack-scala-client 1.0.1
+- Some other dependencies bumped
 
 ## [4.0.0] - 2024-06-24
 ### Changed
