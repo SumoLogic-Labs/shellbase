@@ -23,7 +23,7 @@ buildscript {
     ext.scalaSlackClientVersion = '1.0.1'
     ext.scalatestVersion = '3.0.9'
     ext.slf4jVersion = '2.0.16'
-    ext.velocityVersion = '2.3'
+    ext.velocityVersion = '2.4'
 }
 
 allprojects {
