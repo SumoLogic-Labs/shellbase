@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 Nothing right now.
 
+## [5.0.1] - 2024-11-07
+### Changed
+- Dependency upgrades, incl. Scala 2.13.15 and 2.12.20
+
 ## [5.0.0] - 2024-08-28
 ### Changed
 - Switced over to Pekko instead of Akka
