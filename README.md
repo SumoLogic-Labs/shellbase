@@ -1,6 +1,12 @@
 # shellbase
 Sumo Logic's Scala-based interactive shell framework
 
+---
+
+**Deprecated**: there are no plans to further evolve this repository
+
+---
+
 ## Install / Download
 These are the components we provide:
 * `shellbase-core_2.13` contains everything you need to make a basic, working shell
